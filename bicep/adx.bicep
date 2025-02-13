@@ -159,6 +159,7 @@ resource adxDataConnection 'Microsoft.Kusto/clusters/databases/dataConnections@2
     eventSystemProperties: [
       'x-opt-enqueued-time'
     ]
+    retrievalStartDate: '2022-01-01T00:00:00Z' // if you don't specify this, it will start from the current time, but it will set it as UTC, so you have to wait an hour (or 2 depending on summertime)
     tableName: 'RawEvents'
   }
   dependsOn: [
