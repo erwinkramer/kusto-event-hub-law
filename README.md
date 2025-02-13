@@ -1,0 +1,1 @@
+# kusto-event-hub-law
