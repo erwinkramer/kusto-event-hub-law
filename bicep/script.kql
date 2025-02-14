@@ -50,6 +50,8 @@
     WorkspaceRegion: string
 )
 
+// there seems to be no other option than to use this, because we always get the records in an array
+// also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
 .create-or-alter function LAW_LAQueryLogsExpand() {
     RawEvents
         | mv-expand events = document
