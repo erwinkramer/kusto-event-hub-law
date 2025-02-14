@@ -11,4 +11,4 @@ Some bits were from: https://github.com/Azure/azure-quickstart-templates/blob/ma
 Either:
 
 1. remove the `eventHubName` element from the `Microsoft.OperationalInsights/workspaces/dataExport` to [dynamically route to an event hub with the table name](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-data-export?tabs=portal#event-hubs), then create a `Microsoft.Kusto/clusters/databases/dataConnections` for each event hub.
-1. make the Kusto query smarter and use the `Type` column to place the records in the right table.
+1. make the Kusto query smarter and use the `Type` column to place the records in the right table. Something [like this](https://learn.microsoft.com/en-us/kusto/management/update-policy-tutorial?view=microsoft-fabric#1---create-tables-and-update-policies).
