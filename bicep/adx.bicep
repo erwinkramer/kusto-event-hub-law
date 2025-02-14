@@ -87,7 +87,6 @@ resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2023-0
       resourceId: eventHubNamespace.id
     }
     tableNames: [
-      'Alert'
       'LAQueryLogs'
     ]
   }

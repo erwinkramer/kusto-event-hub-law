@@ -1,8 +1,11 @@
-//  Create a landing table for Event Hub's events
+// Create a landing table for Event Hub's events
 .create-merge table RawEvents(document:dynamic)
 
+// Set the retention policy for the RawEvents table to 0 days (no soft delete)
+.alter-merge table RawEvents policy retention softdelete = 0d
+
 //  Create mapping from JSON ingestion to landing table
-.create-or-alter table RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$","datatype":"dynamic"}]'
+.create-or-alter table RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$.records","datatype":"dynamic"}]'
 
 //  We modify the ingestion batching policy to make it easy to see records coming ingestion
 //  THIS CONFIGURATION SHOULDN'T BE USED IN PRODUCTION:  MaximumBatchingTimeSpan SHOULD BE AT LEAST 1 MINUTE
@@ -10,3 +13,79 @@
 
 // !! Then do a lot of work parsing to a correct table, something like explained in following link!!
 // https://www.danielstechblog.io/ingesting-azure-diagnostic-logs-into-azure-data-explorer/
+// https://github.com/neumanndaniel/scripts/blob/main/Azure_Data_Explorer/Diagnostic_Logs/Activity_Logs.kql
+
+.create-merge table LAW_LAQueryLogs (
+    AADClientId: string,
+    AADEmail: string,
+    AADObjectId: string,
+    AADTenantId: string,
+    _BilledSize: real,
+    CorrelationId: string,
+    _IsBillable: string,
+    IsBillableQuery: bool,
+    IsWorkspaceInFailover: bool,
+    QueryText: string,
+    QueryTimeRangeEnd: datetime,
+    QueryTimeRangeStart: datetime,
+    RequestClientApp: string,
+    RequestContext: dynamic,
+    RequestContextFilters: dynamic,
+    RequestTarget: string,
+    _ResourceId: string,
+    ResponseCode: int,
+    ResponseDurationMs: real,
+    ResponseRowCount: int,
+    ScannedGB: real,
+    SourceSystem: string,
+    StatsCPUTimeMs: real,
+    StatsDataProcessedEnd: datetime,
+    StatsDataProcessedStart: datetime,
+    StatsRegionCount: int,
+    StatsWorkspaceCount: int,
+    _SubscriptionId: string,
+    TenantId: string,
+    TimeGenerated: datetime,
+    Type: string,
+    WorkspaceRegion: string
+)
+
+.create-or-alter function LAW_LAQueryLogsExpand() {
+    RawEvents
+        | mv-expand events = document
+        | project
+            AADClientId = tostring(events.AADClientId),
+            AADEmail = tostring(events.AADEmail),
+            AADObjectId = tostring(events.AADObjectId),
+            AADTenantId = tostring(events.AADTenantId),
+            _BilledSize = todouble(events._BilledSize),
+            CorrelationId = tostring(events.CorrelationId),
+            _IsBillable = tostring(events._IsBillable),
+            IsBillableQuery = tobool(events.IsBillableQuery),
+            IsWorkspaceInFailover = tobool(events.IsWorkspaceInFailover),
+            QueryText = tostring(events.QueryText),
+            QueryTimeRangeEnd = todatetime(events.QueryTimeRangeEnd),
+            QueryTimeRangeStart = todatetime(events.QueryTimeRangeStart),
+            RequestClientApp = tostring(events.RequestClientApp),
+            RequestContext = events.RequestContext,
+            RequestContextFilters = events.RequestContextFilters,
+            RequestTarget = tostring(events.RequestTarget),
+            _ResourceId = tostring(events._ResourceId),
+            ResponseCode = toint(events.ResponseCode),
+            ResponseDurationMs = todouble(events.ResponseDurationMs),
+            ResponseRowCount = toint(events.ResponseRowCount),
+            ScannedGB = todouble(events.ScannedGB),
+            SourceSystem = tostring(events.SourceSystem),
+            StatsCPUTimeMs = todouble(events.StatsCPUTimeMs),
+            StatsDataProcessedEnd = todatetime(events.StatsDataProcessedEnd),
+            StatsDataProcessedStart = todatetime(events.StatsDataProcessedStart),
+            StatsRegionCount = toint(events.StatsRegionCount),
+            StatsWorkspaceCount = toint(events.StatsWorkspaceCount),
+            _SubscriptionId = tostring(events._SubscriptionId),
+            TenantId = tostring(events.TenantId),
+            TimeGenerated = todatetime(events.TimeGenerated),
+            Type = tostring(events.Type),
+            WorkspaceRegion = tostring(events.WorkspaceRegion)
+    }
+
+.alter table LAW_LAQueryLogs policy update @'[{"Source": "RawEvents", "Query": "LAW_LAQueryLogsExpand()", "IsEnabled": "True", "IsTransactional": true}]'
