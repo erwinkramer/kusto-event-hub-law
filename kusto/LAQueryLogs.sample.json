@@ -1,0 +1,36 @@
+{
+	"x-opt-enqueued-time": "2025-02-14T15:27:01.6690000Z",
+	"records": [
+		{
+			"TimeGenerated": "2025-02-14T15:24:08.1090000Z",
+			"CorrelationId": "aee297ce-a763-4eec-b3de-fe8adcc55020",
+			"AADObjectId": "35d966df-2fc3-45a8-a341-edcf1f969070",
+			"AADTenantId": "b81eb003-1c5c-45fd-848f-90d9d3f8d016",
+			"AADEmail": "sdfsdf@hotmail.com",
+			"AADClientId": "95a5d94c-a1a0-40eb-ac6d-48c5bdee96d5",
+			"QueryText": "set query_take_max_records=10001;set truncationmaxsize=67108864;\nUsage\r\n| where TimeGenerated > startofday(now())\r\n| summarize DailyIngestionGB = round(sum(Quantity) / 1000. ,3)\r\n| project value=iff(\"Not set\"== \"Not set\", \"#### Daily cap not set\", strcat(\"### \", DailyIngestionGB, \" / \", \"Not set\"))",
+			"RequestClientApp": "AppInsightsPortalExtension",
+			"RequestTarget": "/subscriptions/beb880cc-af9a-4e4d-8e8e-54739967674f/resourceGroups/rg-7okhjb23v23/providers/microsoft.operationalinsights/workspaces/la-7okhjb23v23",
+			"RequestContext": {
+				"workspaces": [
+					"/subscriptions/beb880cc-af9a-4e4d-8e8e-54739967674f/resourcegroups/rg-7okhjb23v23/providers/microsoft.operationalinsights/workspaces/la-7okhjb23v23"
+				]
+			},
+			"ResponseCode": 200,
+			"ResponseRowCount": 1,
+			"ResponseDurationMs": 304,
+			"StatsCPUTimeMs": 16,
+			"StatsDataProcessedStart": "2025-02-14T14:38:27.3231630Z",
+			"StatsDataProcessedEnd": "2025-02-14T14:38:27.3231630Z",
+			"StatsWorkspaceCount": 1,
+			"StatsRegionCount": 1,
+			"IsBillableQuery": false,
+			"WorkspaceRegion": "westeurope",
+			"_ItemId": "207d92c7-eae8-11ef-933a-000d3a43dfe5",
+			"_Internal_WorkspaceResourceId": "/subscriptions/beb880cc-af9a-4e4d-8e8e-54739967674f/resourcegroups/rg-7okhjb23v23/providers/microsoft.operationalinsights/workspaces/la-7okhjb23v23",
+			"Type": "LAQueryLogs",
+			"TenantId": "a5bc0306-1c3e-4669-b10d-80cf51380888",
+			"_ResourceId": "/SUBSCRIPTIONS/BEB880CC-AF9A-4E4D-8E8E-54739967674F/RESOURCEGROUPS/RG-7OKHJB23V23/PROVIDERS/MICROSOFT.OPERATIONALINSIGHTS/WORKSPACES/LA-7OKHJB23V23"
+		}
+	]
+}

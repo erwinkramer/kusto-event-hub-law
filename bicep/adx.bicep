@@ -138,7 +138,7 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
   resource kustoScript 'scripts' = {
     name: 'db-script'
     properties: {
-      scriptContent: loadTextContent('script.kql')
+      scriptContent: loadTextContent('../kusto/script.kql')
       continueOnErrors: false
     }
   }
