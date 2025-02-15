@@ -6,6 +6,10 @@ Log Analytics Workspace export to Event Hub to Kusto Cluster (Azure Data Explore
 
 Some bits were from: https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.kusto/kusto-event-hub/main.bicep, but i took the cheapest SKUs and the simplest testable setup, batteries included.
 
+## Kusto extension 
+
+For [the Kusto Language Server](https://marketplace.visualstudio.com/items?itemName=rosshamish.kuskus-kusto-language-server) extension, that installs with the VS Code recommendations, please install specific version `3.4.1` and not `3.4.2`, because of issue [Language Server v3.4.2 not working #218](https://github.com/rosshamish/kuskus/issues/218).
+
 ## Routing options
 
 Either:
