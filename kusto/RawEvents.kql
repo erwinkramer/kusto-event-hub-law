@@ -1,5 +1,5 @@
 // Create a landing table for Event Hub's events
-.create-merge table RawEvents(document:dynamic)
+.create-merge table RawEvents(document: dynamic)
 
 // Set the retention policy for the RawEvents table to 0 days (no soft delete)
 // please see https://learn.microsoft.com/en-us/kusto/management/retention-policy?view=azure-data-explorer 

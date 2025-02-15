@@ -34,49 +34,50 @@
     TimeGenerated: datetime,
     Type: string,
     WorkspaceRegion: string
-)
+    )
 
 // there seems to be no other option than to use this, because we always get the records in an array
 // also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
 //
 // copy the create-merge statement and ask copilot to correct the function
-.create-or-alter function LAW_LAQueryLogsExpand() {
-    RawEvents
-        | mv-expand events = document
-        | where events.Type == "LAQueryLogs"
-        | project
-            AADClientId = tostring(events.AADClientId),
-            AADEmail = tostring(events.AADEmail),
-            AADObjectId = tostring(events.AADObjectId),
-            AADTenantId = tostring(events.AADTenantId),
-            _BilledSize = todouble(events._BilledSize),
-            CorrelationId = tostring(events.CorrelationId),
-            _IsBillable = tostring(events._IsBillable),
-            IsBillableQuery = tobool(events.IsBillableQuery),
-            IsWorkspaceInFailover = tobool(events.IsWorkspaceInFailover),
-            QueryText = tostring(events.QueryText),
-            QueryTimeRangeEnd = todatetime(events.QueryTimeRangeEnd),
-            QueryTimeRangeStart = todatetime(events.QueryTimeRangeStart),
-            RequestClientApp = tostring(events.RequestClientApp),
-            RequestContext = events.RequestContext,
-            RequestContextFilters = events.RequestContextFilters,
-            RequestTarget = tostring(events.RequestTarget),
-            _ResourceId = tostring(events._ResourceId),
-            ResponseCode = toint(events.ResponseCode),
-            ResponseDurationMs = todouble(events.ResponseDurationMs),
-            ResponseRowCount = toint(events.ResponseRowCount),
-            ScannedGB = todouble(events.ScannedGB),
-            SourceSystem = tostring(events.SourceSystem),
-            StatsCPUTimeMs = todouble(events.StatsCPUTimeMs),
-            StatsDataProcessedEnd = todatetime(events.StatsDataProcessedEnd),
-            StatsDataProcessedStart = todatetime(events.StatsDataProcessedStart),
-            StatsRegionCount = toint(events.StatsRegionCount),
-            StatsWorkspaceCount = toint(events.StatsWorkspaceCount),
-            _SubscriptionId = tostring(events._SubscriptionId),
-            TenantId = tostring(events.TenantId),
-            TimeGenerated = todatetime(events.TimeGenerated),
-            Type = tostring(events.Type),
-            WorkspaceRegion = tostring(events.WorkspaceRegion)
-}
+.create-or-alter function LAW_LAQueryLogsExpand()
+ {
+     RawEvents
+    | mv-expand events = document
+    | where events.Type == "LAQueryLogs"
+    | project
+        AADClientId = tostring(events.AADClientId),
+        AADEmail = tostring(events.AADEmail),
+        AADObjectId = tostring(events.AADObjectId),
+        AADTenantId = tostring(events.AADTenantId),
+        _BilledSize = todouble(events._BilledSize),
+        CorrelationId = tostring(events.CorrelationId),
+        _IsBillable = tostring(events._IsBillable),
+        IsBillableQuery = tobool(events.IsBillableQuery),
+        IsWorkspaceInFailover = tobool(events.IsWorkspaceInFailover),
+        QueryText = tostring(events.QueryText),
+        QueryTimeRangeEnd = todatetime(events.QueryTimeRangeEnd),
+        QueryTimeRangeStart = todatetime(events.QueryTimeRangeStart),
+        RequestClientApp = tostring(events.RequestClientApp),
+        RequestContext = events.RequestContext,
+        RequestContextFilters = events.RequestContextFilters,
+        RequestTarget = tostring(events.RequestTarget),
+        _ResourceId = tostring(events._ResourceId),
+        ResponseCode = toint(events.ResponseCode),
+        ResponseDurationMs = todouble(events.ResponseDurationMs),
+        ResponseRowCount = toint(events.ResponseRowCount),
+        ScannedGB = todouble(events.ScannedGB),
+        SourceSystem = tostring(events.SourceSystem),
+        StatsCPUTimeMs = todouble(events.StatsCPUTimeMs),
+        StatsDataProcessedEnd = todatetime(events.StatsDataProcessedEnd),
+        StatsDataProcessedStart = todatetime(events.StatsDataProcessedStart),
+        StatsRegionCount = toint(events.StatsRegionCount),
+        StatsWorkspaceCount = toint(events.StatsWorkspaceCount),
+        _SubscriptionId = tostring(events._SubscriptionId),
+        TenantId = tostring(events.TenantId),
+        TimeGenerated = todatetime(events.TimeGenerated),
+        Type = tostring(events.Type),
+        WorkspaceRegion = tostring(events.WorkspaceRegion)
+ }
 
 .alter table LAW_LAQueryLogs policy update @'[{"Source": "RawEvents", "Query": "LAW_LAQueryLogsExpand()", "IsEnabled": "True", "IsTransactional": true}]'
