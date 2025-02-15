@@ -1,7 +1,7 @@
 {
     "recommendations": [
-        "rosshamish.kuskus-kusto-syntax-highlighting",
-        "rosshamish.kuskus-kusto-language-server",
-        "ms-azuretools.vscode-bicep"
+        "ms-azuretools.vscode-bicep",
+        "rosshamish.kuskus-extensions-pack",
+        "github.copilot"
     ]
 }
