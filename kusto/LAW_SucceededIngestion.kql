@@ -1,0 +1,50 @@
+// https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/succeededingestion
+// Copy the columns at once from that page and ask copilot to make the table.
+
+.create-merge table LAW_SucceededIngestion (
+    _BilledSize: real,
+    Database: string,
+    IngestionSourceId: string,
+    IngestionSourcePath: string,
+    _IsBillable: string,
+    OperationId: string,
+    _ResourceId: string,
+    ResultType: string,
+    RootActivityId: string,
+    SourceSystem: string,
+    _SubscriptionId: string,
+    SucceededOn: datetime,
+    Table: string,
+    TenantId: string,
+    TimeGenerated: datetime,
+    Type: string
+)
+
+// there seems to be no other option than to use this, because we always get the records in an array
+// also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
+//
+// copy the create-merge statement and ask copilot to correct the function
+.create-or-alter function LAW_SucceededIngestionExpand() {
+    RawEvents
+        | mv-expand events = document
+        | where events.Type == "SucceededIngestion"
+        | project
+            _BilledSize = todouble(events._BilledSize),
+            Database = tostring(events.Database),
+            IngestionSourceId = tostring(events.IngestionSourceId),
+            IngestionSourcePath = tostring(events.IngestionSourcePath),
+            _IsBillable = tostring(events._IsBillable),
+            OperationId = tostring(events.OperationId),
+            _ResourceId = tostring(events._ResourceId),
+            ResultType = tostring(events.ResultType),
+            RootActivityId = tostring(events.RootActivityId),
+            SourceSystem = tostring(events.SourceSystem),
+            _SubscriptionId = tostring(events._SubscriptionId),
+            SucceededOn = todatetime(events.SucceededOn),
+            Table = tostring(events.Table),
+            TenantId = tostring(events.TenantId),
+            TimeGenerated = todatetime(events.TimeGenerated),
+            Type = tostring(events.Type)
+}
+
+.alter table LAW_SucceededIngestion policy update @'[{"Source": "RawEvents", "Query": "LAW_SucceededIngestionExpand()", "IsEnabled": "True", "IsTransactional": true}]'

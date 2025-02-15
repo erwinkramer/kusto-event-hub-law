@@ -7,7 +7,7 @@ New-AzDeployment -Location "westeurope" -TemplateFile "./bicep/main.bicep"
 
 targetScope = 'subscription'
 
-param projectName string = '7okhjb23v23'
+param projectName string = '7h45hwsert3v23'
 
 param workspaceName string = 'la-${projectName}'
 param eventHubNamespaceName string = 'evhns-${projectName}'

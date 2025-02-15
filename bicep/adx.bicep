@@ -25,28 +25,12 @@ resource logAnalyticsDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@20
       {
         categoryGroup: 'AllLogs'
         enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
-      }
-      {
-        categoryGroup: 'Audit'
-        enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
     metrics: [
       {
         category: 'AllMetrics'
         enabled: true
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
   }
@@ -58,6 +42,28 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
   sku: {
     name: 'Basic'
     tier: 'Basic'
+  }
+}
+
+// do this diagnostics to just generate some test logs to stream to adx
+// go to ... to generate some logs for type '...' 
+resource eventHubNamespaceDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${eventHubNamespaceName}-diagnostic'
+  scope: eventHubNamespace
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    logs: [
+      {
+        categoryGroup: 'AllLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 
@@ -86,8 +92,14 @@ resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2023-0
       }
       resourceId: eventHubNamespace.id
     }
+    // supported tables: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-data-export?tabs=portal#supported-tables
     tableNames: [
       'LAQueryLogs'
+      'LASummaryLogs'
+      'AzureMetricsV2'
+      'Operation' //Partial support. Some of the data is ingested through internal services that aren't supported in export. Currently, this portion is missing in export.
+      'SucceededIngestion'
+      'Usage'
     ]
   }
 }
@@ -105,6 +117,28 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   }
   properties: {
     enableDiskEncryption: true
+  }
+}
+
+// do this diagnostics to just generate some test logs to stream to adx
+// go to ... to generate some logs for type '...' 
+resource adxClusterDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${adxClusterName}-diagnostic'
+  scope: adxCluster
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    logs: [
+      {
+        categoryGroup: 'AllLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 
@@ -135,12 +169,34 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
     hotCachePeriod: 'P1D'
   }
 
-  resource kustoScript 'scripts' = {
-    name: 'db-script'
+  resource dbScript_RawEvents 'scripts' = {
+    name: 'RawEvents'
     properties: {
-      scriptContent: loadTextContent('../kusto/script.kql')
+      scriptContent: loadTextContent('../kusto/RawEvents.kql')
       continueOnErrors: false
     }
+  }
+
+  resource dbScript_LAW_LAQueryLogs 'scripts' = {
+    name: 'LAW_LAQueryLogs'
+    properties: {
+      scriptContent: loadTextContent('../kusto/LAW_LAQueryLogs.kql')
+      continueOnErrors: false
+    }
+    dependsOn: [
+      dbScript_RawEvents
+    ]
+  }
+
+  resource dbScript_LAW_SucceededIngestion 'scripts' = {
+    name: 'LAW_SucceededIngestion'
+    properties: {
+      scriptContent: loadTextContent('../kusto/LAW_SucceededIngestion.kql')
+      continueOnErrors: false
+    }
+    dependsOn: [
+      dbScript_RawEvents
+    ]
   }
 }
 
@@ -163,6 +219,6 @@ resource adxDataConnection 'Microsoft.Kusto/clusters/databases/dataConnections@2
   }
   dependsOn: [
     adxRoleAssignmentEventHubReceiver
-    adxDatabase::kustoScript
+    adxDatabase::dbScript_RawEvents
   ]
 }

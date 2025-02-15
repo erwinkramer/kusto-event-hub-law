@@ -1,19 +1,5 @@
-// Create a landing table for Event Hub's events
-.create-merge table RawEvents(document:dynamic)
-
-// Set the retention policy for the RawEvents table to 0 days (no soft delete)
-.alter-merge table RawEvents policy retention softdelete = 0d
-
-//  Create mapping from JSON ingestion to landing table
-.create-or-alter table RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$.records","datatype":"dynamic"}]'
-
-//  We modify the ingestion batching policy to make it easy to see records coming ingestion
-//  THIS CONFIGURATION SHOULDN'T BE USED IN PRODUCTION:  MaximumBatchingTimeSpan SHOULD BE AT LEAST 1 MINUTE
-.alter table RawEvents policy ingestionbatching "{'MaximumBatchingTimeSpan': '0:0:10', 'MaximumNumberOfItems': 10000}"
-
-// !! Then do a lot of work parsing to a correct table, something like explained in following link!!
-// https://www.danielstechblog.io/ingesting-azure-diagnostic-logs-into-azure-data-explorer/
-// https://github.com/neumanndaniel/scripts/blob/main/Azure_Data_Explorer/Diagnostic_Logs/Activity_Logs.kql
+// https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/laquerylogs
+// Copy the columns at once from that page and ask copilot to make the table.
 
 .create-merge table LAW_LAQueryLogs (
     AADClientId: string,
@@ -52,9 +38,12 @@
 
 // there seems to be no other option than to use this, because we always get the records in an array
 // also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
+//
+// copy the create-merge statement and ask copilot to correct the function
 .create-or-alter function LAW_LAQueryLogsExpand() {
     RawEvents
         | mv-expand events = document
+        | where events.Type == "LAQueryLogs"
         | project
             AADClientId = tostring(events.AADClientId),
             AADEmail = tostring(events.AADEmail),
@@ -88,6 +77,6 @@
             TimeGenerated = todatetime(events.TimeGenerated),
             Type = tostring(events.Type),
             WorkspaceRegion = tostring(events.WorkspaceRegion)
-    }
+}
 
 .alter table LAW_LAQueryLogs policy update @'[{"Source": "RawEvents", "Query": "LAW_LAQueryLogsExpand()", "IsEnabled": "True", "IsTransactional": true}]'
