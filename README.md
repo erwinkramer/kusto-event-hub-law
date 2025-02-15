@@ -1,4 +1,4 @@
-# Streaming logs from LAW to a Kusto Cluster via Event Hubs
+# Streaming logs from LAW to a Kusto Cluster 🤽🏻‍♂️
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/erwinkramer/kusto-event-hub-law)
