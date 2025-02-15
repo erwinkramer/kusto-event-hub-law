@@ -1,8 +1,10 @@
-param workspaceName string
-param eventHubNamespaceName string
-param eventHubName string
-param adxClusterName string
+param projectName string
 param environment string
+
+var workspaceName = 'la-${projectName}'
+var eventHubNamespaceName = 'evhns-${projectName}'
+var eventHubName = 'evh-${projectName}'
+var adxClusterName = 'adx-${projectName}'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: workspaceName
