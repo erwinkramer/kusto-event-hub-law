@@ -26,7 +26,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   location: 'westeurope'
 }
 
-module law 'law.bicep' = {
+module law 'modules/law.bicep' = {
   name: 'law'
   scope: resourceGroup
   params: {
@@ -36,7 +36,7 @@ module law 'law.bicep' = {
   }
 }
 
-module adx 'adx.bicep' = {
+module adx 'modules/adx.bicep' = {
   name: 'adx'
   scope: resourceGroup
   params: {
@@ -47,7 +47,7 @@ module adx 'adx.bicep' = {
   }
 }
 
-module adxDb './adx-db.bicep' = {
+module adxDb 'modules/adx-db.bicep' = {
   name: 'adxDb'
   scope: resourceGroup
   params: {

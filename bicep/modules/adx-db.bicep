@@ -17,7 +17,7 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
   resource dbScript_RawEvents 'scripts' = {
     name: 'RawEvents'
     properties: {
-      scriptContent: loadTextContent('../kusto/RawEvents.kql')
+      scriptContent: loadTextContent('../../kusto/RawEvents.kql')
       continueOnErrors: false
     }
   }
@@ -25,7 +25,7 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
   resource dbScript_LAW_LAQueryLogs 'scripts' = {
     name: 'LAW_LAQueryLogs'
     properties: {
-      scriptContent: loadTextContent('../kusto/LAW_LAQueryLogs.kql')
+      scriptContent: loadTextContent('../../kusto/LAW_LAQueryLogs.kql')
       continueOnErrors: false
     }
     dependsOn: [
@@ -36,7 +36,7 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
   resource dbScript_LAW_SucceededIngestion 'scripts' = {
     name: 'LAW_SucceededIngestion'
     properties: {
-      scriptContent: loadTextContent('../kusto/LAW_SucceededIngestion.kql')
+      scriptContent: loadTextContent('../../kusto/LAW_SucceededIngestion.kql')
       continueOnErrors: false
     }
     dependsOn: [
