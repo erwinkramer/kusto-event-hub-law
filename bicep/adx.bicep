@@ -2,6 +2,7 @@ param workspaceName string
 param eventHubNamespaceName string
 param eventHubName string
 param adxClusterName string
+param environment string
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: workspaceName
@@ -14,9 +15,9 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09
   }
 }
 
-// do this diagnostics to just generate some test logs to stream to adx
-// go to the insights blade of the LAW to generate some logs for type 'LAQueryLogs' 
-resource logAnalyticsDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+// do some queries in the insights blade of the LAW (just opening the blade is enough)
+// generates 'LAQueryLogs' logs
+resource logAnalyticsDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (environment == 'staging') {
   name: '${workspaceName}-diagnostic'
   scope: logAnalyticsWorkspace
   properties: {
@@ -45,9 +46,8 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
   }
 }
 
-// do this diagnostics to just generate some test logs to stream to adx
-// go to ... to generate some logs for type '...' 
-resource eventHubNamespaceDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+// generates 'AzureDiagnostics' logs
+resource eventHubNamespaceDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (environment == 'staging') {
   name: '${eventHubNamespaceName}-diagnostic'
   scope: eventHubNamespace
   properties: {
@@ -120,9 +120,12 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   }
 }
 
-// do this diagnostics to just generate some test logs to stream to adx
-// go to ... to generate some logs for type '...' 
-resource adxClusterDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+// do some queries in adx
+// generates 'ADXCommand', 'ADXDataOperation', 'ADXIngestionBatching', 'ADXJournal', 'ADXQuery', 'ADXTableUsageStatistics' logs
+//
+// ingest some data into adx (via event hub that just works if you deploy this solution)
+// generates 'SucceededIngestion' logs
+resource adxClusterDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (environment == 'staging') {
   name: '${adxClusterName}-diagnostic'
   scope: adxCluster
   properties: {
@@ -143,10 +146,13 @@ resource adxClusterDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021
 }
 
 resource adxRoleAssignmentEventHubReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(eventHub.id, adxCluster.name , 'Azure Event Hubs Data Receiver') // pattern: destination, identity, role
+  name: guid(eventHub.id, adxCluster.name, 'Azure Event Hubs Data Receiver') // pattern: destination, identity, role
   scope: eventHub
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde') // Azure Event Hubs Data Receiver role ID
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
+    ) // Azure Event Hubs Data Receiver role ID
     principalId: adxCluster.identity.principalId
   }
 }
@@ -155,7 +161,10 @@ resource adxRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2
   name: guid(adxCluster.id, adxCluster.name, 'Contributor') // pattern: destination, identity, role
   scope: adxCluster
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor role ID
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'b24988ac-6180-42a0-ab88-20f7382dd24c'
+    ) // Contributor role ID
     principalId: adxCluster.identity.principalId
   }
 }

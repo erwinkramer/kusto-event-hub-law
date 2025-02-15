@@ -7,6 +7,11 @@ New-AzDeployment -Location "westeurope" -TemplateFile "./bicep/main.bicep"
 
 targetScope = 'subscription'
 
+@allowed([
+  'staging'
+  'prod'
+])
+param environment string = 'staging'
 param projectName string = '7h45hwsert3v23'
 
 param workspaceName string = 'la-${projectName}'
@@ -23,6 +28,7 @@ module adx 'adx.bicep' = {
   name: 'adxDeployment'
   scope: resourceGroup
   params: {
+    environment: environment
     adxClusterName: adxClusterName
     workspaceName: workspaceName
     eventHubNamespaceName: eventHubNamespaceName
