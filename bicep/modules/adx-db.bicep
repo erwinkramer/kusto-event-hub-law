@@ -1,5 +1,6 @@
 param adxClusterName string
 param eventHubResourceId string
+param eventHubConsumerGroupName string
 
 resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' existing = {
   name: adxClusterName
@@ -50,7 +51,7 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
     location: resourceGroup().location
     properties: {
       eventHubResourceId: eventHubResourceId
-      consumerGroup: '$Default' //eventHubConsumerGroup.name
+      consumerGroup: eventHubConsumerGroupName
       managedIdentityResourceId: adxCluster.id
       dataFormat: 'MULTIJSON'
       mappingRuleName: 'DirectJson' //from script.kql

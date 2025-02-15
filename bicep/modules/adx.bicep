@@ -26,10 +26,10 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
       partitionCount: 1
     }
 
-    // only possible on higher SKU
-    //resource eventHubConsumerGroup 'consumergroups' = {
-    //  name: 'myConsumerGroup'
-    //}
+    // only possible on higher SKU, so do not use on dev
+    resource eventHubConsumerGroup 'consumergroups' = if (environment != 'dev' ) {
+      name: 'cg-${adxClusterName}'
+    }
   }
 }
 
@@ -143,3 +143,4 @@ resource adxRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2
 
 output adxClusterName string = adxCluster.name
 output eventHubId string = eventHubNamespace::eventHub.id
+output eventHubConsumerGroupName string = environment == 'dev' ? '$Default' : eventHubNamespace::eventHub::eventHubConsumerGroup.name

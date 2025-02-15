@@ -53,5 +53,6 @@ module adxDb 'modules/adx-db.bicep' = {
   params: {
     adxClusterName: adx.outputs.adxClusterName
     eventHubResourceId: adx.outputs.eventHubId
+    eventHubConsumerGroupName: adx.outputs.eventHubConsumerGroupName
   }
 }
