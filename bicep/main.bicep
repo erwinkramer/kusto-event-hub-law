@@ -1,7 +1,7 @@
 /*
 
 Connect-AzAccount
-New-AzDeployment -Location "westeurope" -TemplateFile "./bicep/main.bicep"
+New-AzDeployment -Location "westeurope" -TemplateFile "./bicep/main.bicep" -TemplateParameterFile "./bicep/main.dev.bicepparam"      
 
 */
 
@@ -9,17 +9,17 @@ targetScope = 'subscription'
 
 @allowed([
   'dev'
-  'prod'
+  'prd'
 ])
-param environment string = 'dev'
+param environment string
 
 @maxLength(8)
 @description('short name of the project, adx cluster has a max length of 22 characters, so keep this project name short')
-param projectName string = 'github'
+param projectName string
 
 @maxLength(3)
 @description('iteration of the project, used for most resource names')
-param iteration string = '002'
+param iteration string
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: 'rg-${projectName}-${environment}-${iteration}'
