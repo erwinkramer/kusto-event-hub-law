@@ -4,7 +4,7 @@ param eventHubConsumerGroupName string
 
 @description('''
 Leave default (utcNow()) to run the database scripts, pass an empty string to not run the scripts again.
-Please see https://docs.azure.cn/en-us/data-explorer/database-script#omit-update-tag
+Please see https://learn.microsoft.com/en-us/azure/data-explorer/database-script#omit-update-tag
 ''')
 param runDatabaseScripts string = utcNow()
 
