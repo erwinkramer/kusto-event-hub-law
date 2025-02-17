@@ -1,3 +1,4 @@
+param tags object
 param projectName string
 param environment string
 param iteration string
@@ -6,6 +7,7 @@ var workspaceName = 'la-${projectName}-${environment}-${iteration}'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: workspaceName
+  tags: tags
   location: resourceGroup().location
   properties: {
     retentionInDays: 30

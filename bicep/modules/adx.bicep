@@ -1,3 +1,4 @@
+param tags object
 param projectName string
 param environment string
 param iteration string
@@ -13,6 +14,7 @@ resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
 
 resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = {
   name: eventHubNamespaceName
+  tags: tags
   location: resourceGroup().location
   sku: {
     name: 'Basic'
@@ -78,6 +80,7 @@ resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2023-0
 
 resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   name: adxClusterName
+  tags: tags
   location: resourceGroup().location
   sku: {
     tier: 'Standard'

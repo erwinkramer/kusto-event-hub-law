@@ -21,8 +21,17 @@ param projectName string
 @description('iteration of the project, used for most resource names')
 param iteration string
 
+param environmentTags object
+
+var tags = union(environmentTags, {
+  environment: environment
+  projectName: projectName
+  iteration: iteration
+})
+
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: 'rg-${projectName}-${environment}-${iteration}'
+  tags: tags
   location: 'westeurope'
 }
 
@@ -30,6 +39,7 @@ module law 'modules/law.bicep' = {
   name: 'law'
   scope: resourceGroup
   params: {
+    tags: tags
     environment: environment
     projectName: projectName
     iteration: iteration
@@ -40,6 +50,7 @@ module adx 'modules/adx.bicep' = {
   name: 'adx'
   scope: resourceGroup
   params: {
+    tags: tags
     environment: environment
     projectName: projectName
     iteration: iteration
