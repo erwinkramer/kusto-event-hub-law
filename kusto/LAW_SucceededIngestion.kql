@@ -26,7 +26,7 @@
 // copy the create-merge statement and ask copilot to correct the function
 .create-or-alter function LAW_SucceededIngestionExpand()
  {
-     RawEvents
+     LAW_RawEvents
     | mv-expand events = document
     | where events.Type == "SucceededIngestion"
     | project
@@ -48,4 +48,4 @@
         Type = tostring(events.Type)
  }
 
-.alter table LAW_SucceededIngestion policy update @'[{"Source": "RawEvents", "Query": "LAW_SucceededIngestionExpand()", "IsEnabled": "True", "IsTransactional": true}]'
+.alter table LAW_SucceededIngestion policy update @'[{"Source": "LAW_RawEvents", "Query": "LAW_SucceededIngestionExpand()", "IsEnabled": "True", "IsTransactional": true}]'

@@ -42,7 +42,7 @@
 // copy the create-merge statement and ask copilot to correct the function
 .create-or-alter function LAW_LAQueryLogsExpand()
  {
-     RawEvents
+     LAW_RawEvents
     | mv-expand events = document
     | where events.Type == "LAQueryLogs"
     | project
@@ -80,4 +80,4 @@
         WorkspaceRegion = tostring(events.WorkspaceRegion)
  }
 
-.alter table LAW_LAQueryLogs policy update @'[{"Source": "RawEvents", "Query": "LAW_LAQueryLogsExpand()", "IsEnabled": "True", "IsTransactional": true}]'
+.alter table LAW_LAQueryLogs policy update @'[{"Source": "LAW_RawEvents", "Query": "LAW_LAQueryLogsExpand()", "IsEnabled": "True", "IsTransactional": true}]'
