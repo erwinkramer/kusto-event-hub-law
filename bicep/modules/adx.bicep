@@ -3,6 +3,7 @@ param projectName string
 param environment string
 param iteration string
 param logAnalyticsWorkspaceName string
+param inboundSubnetId string
 
 var eventHubNamespaceName = 'evhns-${projectName}-${environment}-${iteration}'
 var eventHubName = 'evh-${projectName}-${environment}-${iteration}'
@@ -17,8 +18,8 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
   tags: tags
   location: resourceGroup().location
   sku: {
-    name: 'Basic'
-    tier: 'Basic'
+    name: 'Standard' //basic doesn't support consumer groups (except the $default one), Standard does
+    tier: 'Standard'
   }
 
   resource eventHub 'eventhubs' = {
@@ -28,9 +29,44 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
       partitionCount: 1
     }
 
-    // only possible on higher SKU, so do not use on dev
-    resource eventHubConsumerGroup 'consumergroups' = if (environment != 'dev' ) {
+    // only possible on higher SKU (Standard or higher), so do not use on dev for now
+    resource eventHubConsumerGroup 'consumergroups' = if (environment != 'dev') {
       name: 'cg-${adxClusterName}'
+    }
+  }
+}
+
+resource eventHubNamespacePe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+  name: 'pe-${eventHubNamespaceName}'
+  location: resourceGroup().location
+  properties: {
+    subnet: {
+      id: inboundSubnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'namespaceConnection'
+        properties: {
+          privateLinkServiceId: eventHubNamespace.id
+          groupIds: [
+            'namespace'
+          ]
+        }
+      }
+    ]
+  }
+
+  resource privateEndpointDsnZoneGroupResource 'privateDnsZoneGroups' = {
+    name: 'eventhub'
+    properties: {
+      privateDnsZoneConfigs: [
+        for dnsZone in ['privatelink.servicebus.windows.net']: {
+          name: dnsZone
+          properties: {
+            privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', dnsZone)
+          }
+        }
+      ]
     }
   }
 }
@@ -95,6 +131,46 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   }
 }
 
+resource adxClusterPe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+  name: 'pe-${adxClusterName}'
+  location: resourceGroup().location
+  properties: {
+    subnet: {
+      id: inboundSubnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'clusterConnection'
+        properties: {
+          privateLinkServiceId: adxCluster.id
+          groupIds: [
+            'cluster'
+          ]
+        }
+      }
+    ]
+  }
+
+  resource privateEndpointDsnZoneGroupResource 'privateDnsZoneGroups' = {
+    name: 'adx'
+    properties: {
+      privateDnsZoneConfigs: [
+        for dnsZone in [
+          'privatelink.blob.core.windows.net'
+          'privatelink.table.core.windows.net'
+          'privatelink.queue.core.windows.net'
+          'privatelink.${resourceGroup().location}.kusto.windows.net'
+        ]: {
+          name: dnsZone
+          properties: {
+            privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', dnsZone)
+          }
+        }
+      ]
+    }
+  }
+}
+
 // do some queries in adx
 // generates 'ADXCommand', 'ADXDataOperation', 'ADXIngestionBatching', 'ADXJournal', 'ADXQuery', 'ADXTableUsageStatistics' logs
 //
@@ -146,4 +222,6 @@ resource adxRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2
 
 output adxClusterName string = adxCluster.name
 output eventHubId string = eventHubNamespace::eventHub.id
-output eventHubConsumerGroupName string = environment == 'dev' ? '$Default' : eventHubNamespace::eventHub::eventHubConsumerGroup.name
+output eventHubConsumerGroupName string = environment == 'dev'
+  ? '$Default'
+  : eventHubNamespace::eventHub::eventHubConsumerGroup.name

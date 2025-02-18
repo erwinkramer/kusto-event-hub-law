@@ -35,6 +35,17 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   location: 'westeurope'
 }
 
+module network 'modules/network.bicep' = {
+  name: 'network'
+  scope: resourceGroup
+  params: {
+    tags: tags
+    environment: environment
+    projectName: projectName
+    iteration: iteration
+  }
+}
+
 module law 'modules/law.bicep' = {
   name: 'law'
   scope: resourceGroup
@@ -55,6 +66,7 @@ module adx 'modules/adx.bicep' = {
     projectName: projectName
     iteration: iteration
     logAnalyticsWorkspaceName: law.outputs.logAnalyticsWorkspaceName
+    inboundSubnetId: network.outputs.inboundSubnetId
   }
 }
 
