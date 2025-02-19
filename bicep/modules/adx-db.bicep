@@ -20,6 +20,7 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
   kind: 'ReadWrite'
   properties: {
     hotCachePeriod: 'P1D'
+    softDeletePeriod: 'P13M' // 13 months retention
   }
 
   resource dbScript_DIAG_RawEvents 'scripts' = {
