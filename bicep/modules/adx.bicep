@@ -122,6 +122,7 @@ resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2023-0
       'AzureMetricsV2'
       'Operation' //Partial support. Some of the data is ingested through internal services that aren't supported in export. Currently, this portion is missing in export.
       'SucceededIngestion'
+      'ADXCommand'
       'Usage'
     ]
   }

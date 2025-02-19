@@ -64,6 +64,18 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
     ]
   }
 
+  resource dbScript_LAW_ADXCommand 'scripts' = {
+    name: 'LAW_ADXCommand'
+    properties: {
+      forceUpdateTag: runDatabaseScripts
+      scriptContent: loadTextContent('../../kusto/LAW_ADXCommand.kql')
+      continueOnErrors: false
+    }
+    dependsOn: [
+      dbScript_LAW_RawEvents
+    ]
+  }
+
   resource adxLawDataConnection 'dataConnections' = {
     name: 'EventHub_LAW'
     kind: 'EventHub'

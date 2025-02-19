@@ -1,0 +1,71 @@
+// https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/adxcommand
+// Copy the columns at once from that page and ask copilot to make the table.
+
+.create-merge table LAW_ADXCommand (
+    ApplicationName: string,
+    _BilledSize: real,
+    Category: string,
+    CommandType: string,
+    CorrelationId: string,
+    DatabaseName: string,
+    Duration: string,
+    FailureReason: string,
+    _IsBillable: string,
+    LastUpdatedOn: datetime,
+    OperationName: string,
+    Principal: string,
+    _ResourceId: string,
+    ResourceUtilization: dynamic,
+    RootActivityId: string,
+    SourceSystem: string,
+    StartedOn: datetime,
+    State: string,
+    _SubscriptionId: string,
+    TenantId: string,
+    Text: string,
+    TimeGenerated: datetime,
+    TotalCPU: string,
+    Type: string,
+    User: string,
+    WorkloadGroup: string
+    )
+
+// there seems to be no other option than to use this, because we always get the records in an array
+// also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
+//
+// copy the create-merge statement and ask copilot to correct the function
+.create-or-alter function LAW_ADXCommandExpand()
+ {
+     LAW_RawEvents
+    | mv-expand events = document
+    | where events.Type == "ADXCommand"
+    | project
+        ApplicationName = tostring(events.ApplicationName),
+        _BilledSize = todouble(events._BilledSize),
+        Category = tostring(events.Category),
+        CommandType = tostring(events.CommandType),
+        CorrelationId = tostring(events.CorrelationId),
+        DatabaseName = tostring(events.DatabaseName),
+        Duration = tostring(events.Duration),
+        FailureReason = tostring(events.FailureReason),
+        _IsBillable = tostring(events._IsBillable),
+        LastUpdatedOn = todatetime(events.LastUpdatedOn),
+        OperationName = tostring(events.OperationName),
+        Principal = tostring(events.Principal),
+        _ResourceId = tostring(events._ResourceId),
+        ResourceUtilization = events.ResourceUtilization,
+        RootActivityId = tostring(events.RootActivityId),
+        SourceSystem = tostring(events.SourceSystem),
+        StartedOn = todatetime(events.StartedOn),
+        State = tostring(events.State),
+        _SubscriptionId = tostring(events._SubscriptionId),
+        TenantId = tostring(events.TenantId),
+        Text = tostring(events.Text),
+        TimeGenerated = todatetime(events.TimeGenerated),
+        TotalCPU = tostring(events.TotalCPU),
+        Type = tostring(events.Type),
+        User = tostring(events.User),
+        WorkloadGroup = tostring(events.WorkloadGroup)
+ }
+
+.alter table LAW_LAQueryLogs policy update @'[{"Source": "LAW_RawEvents", "Query": "LAW_ADXCommandExpand()", "IsEnabled": "True", "IsTransactional": true}]'
