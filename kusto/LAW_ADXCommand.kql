@@ -68,4 +68,4 @@
         WorkloadGroup = tostring(events.WorkloadGroup)
  }
 
-.alter table LAW_LAQueryLogs policy update @'[{"Source": "LAW_RawEvents", "Query": "LAW_ADXCommandExpand()", "IsEnabled": "True", "IsTransactional": true}]'
+.alter table LAW_ADXCommand policy update @'[{"Source": "LAW_RawEvents", "Query": "LAW_ADXCommandExpand()", "IsEnabled": "True", "IsTransactional": true}]'
