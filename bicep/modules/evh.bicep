@@ -22,7 +22,6 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
     name: 'Standard' //'Basic' doesn't private endpoints, 'Standard' does
     tier: 'Standard'
   }
-
   properties: {
     isAutoInflateEnabled: true
     maximumThroughputUnits: eventHubMaxThroughputUnits

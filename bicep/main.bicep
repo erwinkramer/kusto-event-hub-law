@@ -26,9 +26,7 @@ param environmentTags object
 @description('The budget of the project, in euros')
 param budgetInEuros int
 
-@minValue(2)
-@maxValue(1000)
-param adxMaxInstanceCount int
+param adxSkuName string
 
 @minValue(1)
 @maxValue(40)
@@ -125,7 +123,7 @@ module adx 'modules/adx.bicep' = {
     environment: environment
     projectName: projectName
     iteration: iteration
-    adxMaxInstanceCount: adxMaxInstanceCount
+    adxSkuName: adxSkuName
     logAnalyticsWorkspaceName: law.outputs.logAnalyticsWorkspaceName
     inboundSubnetId: network.outputs.inboundSubnetId
     eventHubDiagnosticsName: evh.outputs.eventHubDiagName
