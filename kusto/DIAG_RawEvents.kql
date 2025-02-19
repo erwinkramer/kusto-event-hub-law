@@ -7,7 +7,7 @@
 //.alter-merge table DIAG_RawEvents policy retention softdelete = 0d
 
 //  Create mapping from JSON ingestion to landing table
-.create-or-alter table DIAG_RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$","datatype":"dynamic"}]'
+.create-or-alter table DIAG_RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$.records","datatype":"dynamic"}]'
 
 //  We modify the ingestion batching policy to make it easy to see records coming ingestion
 //  THIS CONFIGURATION SHOULDN'T BE USED IN PRODUCTION:  MaximumBatchingTimeSpan SHOULD BE AT LEAST 1 MINUTE
