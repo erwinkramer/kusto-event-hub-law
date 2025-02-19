@@ -57,6 +57,19 @@ module law 'modules/law.bicep' = {
   }
 }
 
+module evh 'modules/evh.bicep' = {
+  name: 'evh'
+  scope: resourceGroup
+  params: {
+    tags: tags
+    inboundSubnetId: network.outputs.inboundSubnetId
+    logAnalyticsWorkspaceName: law.outputs.logAnalyticsWorkspaceName
+    environment: environment
+    projectName: projectName
+    iteration: iteration
+  }
+}
+
 module adx 'modules/adx.bicep' = {
   name: 'adx'
   scope: resourceGroup
@@ -67,6 +80,8 @@ module adx 'modules/adx.bicep' = {
     iteration: iteration
     logAnalyticsWorkspaceName: law.outputs.logAnalyticsWorkspaceName
     inboundSubnetId: network.outputs.inboundSubnetId
+    eventHubDiagnosticsName: evh.outputs.eventHubDiagName
+    eventHubDiagnosticsAuthorizationRuleId: evh.outputs.eventHubDiagAuthorizationRuleId
   }
 }
 
@@ -75,8 +90,8 @@ module adxDb 'modules/adx-db.bicep' = {
   scope: resourceGroup
   params: {
     adxClusterName: adx.outputs.adxClusterName
-    eventHubLawResourceId: adx.outputs.eventHubLawId
-    eventHubDiagResourceId: adx.outputs.eventHubDiagId
-    eventHubConsumerGroupName: adx.outputs.eventHubConsumerGroupName
+    eventHubLawResourceId: evh.outputs.eventHubLawId
+    eventHubDiagResourceId: evh.outputs.eventHubDiagId
+    eventHubConsumerGroupName: evh.outputs.eventHubConsumerGroupName
   }
 }
