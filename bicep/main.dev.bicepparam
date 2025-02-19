@@ -3,6 +3,7 @@ using './main.bicep'
 param environment = 'dev'
 param projectName = 'github'
 param iteration = '004'
+param budgetInEuros = 50
 param adxMaxInstanceCount = 2
 param eventHubMaxThroughputUnits = 1
 

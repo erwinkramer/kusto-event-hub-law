@@ -23,6 +23,9 @@ param iteration string
 
 param environmentTags object
 
+@description('The budget of the project, in euros')
+param budgetInEuros int
+
 @minValue(2)
 @maxValue(1000)
 param adxMaxInstanceCount int
@@ -44,6 +47,38 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: 'rg-${projectName}-${environment}-${iteration}'
   tags: tags
   location: 'westeurope'
+}
+
+resource costBudget 'Microsoft.Consumption/budgets@2024-08-01' = {
+  name: 'budget-${projectName}-${environment}-${iteration}'
+  properties: {
+    category: 'Cost'
+    amount: budgetInEuros
+    timeGrain: 'Monthly'
+    timePeriod: {
+      startDate: '2025-02-01T00:00:00Z'
+      endDate: '2026-12-01T00:00:00Z'
+    }
+    notifications: {
+      actual: {
+        enabled: true
+        operator: 'GreaterThan'
+        threshold: 90
+        contactEmails: [
+          'info@guanchen.nl'
+        ]
+      }
+    }
+    filter: {
+      dimensions: {
+        name: 'ResourceGroup'
+        operator: 'In'
+        values: [
+          resourceGroup.id
+        ]
+      }
+    }
+  }
 }
 
 module network 'modules/network.bicep' = {
