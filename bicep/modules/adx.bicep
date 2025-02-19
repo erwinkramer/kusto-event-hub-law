@@ -6,7 +6,8 @@ param logAnalyticsWorkspaceName string
 param inboundSubnetId string
 
 var eventHubNamespaceName = 'evhns-${projectName}-${environment}-${iteration}'
-var eventHubName = 'evh-${projectName}-${environment}-${iteration}'
+var eventHubLogAnalyticsWorkspaceName = 'evh-${projectName}-law-${environment}-${iteration}'
+var eventHubDiagnosticsSettingsName = 'evh-${projectName}-diag-${environment}-${iteration}'
 var adxClusterName = 'adx-${projectName}-${environment}-${iteration}' //max length of 22 characters
 
 resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
@@ -22,16 +23,28 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
     tier: 'Standard'
   }
 
-  resource eventHub 'eventhubs' = {
-    name: eventHubName
+  resource sendRuleDiag 'authorizationRules' = {
+    name: 'sendRuleDiag'
+    properties: {
+      rights: [
+        'Send'
+      ]
+    }
+  }
+
+  resource eventHubLaw 'eventhubs' = {
+    name: eventHubLogAnalyticsWorkspaceName
     properties: {
       messageRetentionInDays: 1
       partitionCount: 1
     }
+  }
 
-    // only possible on higher SKU (Standard or higher), so do not use on dev for now
-    resource eventHubConsumerGroup 'consumergroups' = if (environment != 'dev') {
-      name: 'cg-${adxClusterName}'
+  resource eventHubDiag 'eventhubs' = {
+    name: eventHubDiagnosticsSettingsName
+    properties: {
+      messageRetentionInDays: 1
+      partitionCount: 1
     }
   }
 }
@@ -98,7 +111,7 @@ resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2023-0
   properties: {
     destination: {
       metaData: {
-        eventHubName: eventHubNamespace::eventHub.name
+        eventHubName: eventHubNamespace::eventHubLaw.name
       }
       resourceId: eventHubNamespace.id
     }
@@ -181,6 +194,8 @@ resource adxClusterDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021
   scope: adxCluster
   properties: {
     workspaceId: law.id
+    eventHubName: eventHubNamespace::eventHubDiag.name
+    eventHubAuthorizationRuleId: eventHubNamespace::sendRuleDiag.id
     logs: [
       {
         categoryGroup: 'AllLogs'
@@ -196,9 +211,21 @@ resource adxClusterDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021
   }
 }
 
-resource adxRoleAssignmentEventHubReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(eventHubNamespace::eventHub.id, adxCluster.name, 'Azure Event Hubs Data Receiver') // pattern: destination, identity, role
-  scope: eventHubNamespace::eventHub
+resource adxRoleAssignmentEventHubLawReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(eventHubNamespace::eventHubLaw.id, adxCluster.name, 'Azure Event Hubs Data Receiver') // pattern: destination, identity, role
+  scope: eventHubNamespace::eventHubLaw
+  properties: {
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
+    ) // Azure Event Hubs Data Receiver role ID
+    principalId: adxCluster.identity.principalId
+  }
+}
+
+resource adxRoleAssignmentEventHubDiagReceiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(eventHubNamespace::eventHubDiag.id, adxCluster.name, 'Azure Event Hubs Data Receiver') // pattern: destination, identity, role
+  scope: eventHubNamespace::eventHubDiag
   properties: {
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
@@ -221,7 +248,7 @@ resource adxRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2
 }
 
 output adxClusterName string = adxCluster.name
-output eventHubId string = eventHubNamespace::eventHub.id
-output eventHubConsumerGroupName string = environment == 'dev'
-  ? '$Default'
-  : eventHubNamespace::eventHub::eventHubConsumerGroup.name
+
+output eventHubConsumerGroupName string = '$Default'
+output eventHubLawId string = eventHubNamespace::eventHubLaw.id
+output eventHubDiagId string = eventHubNamespace::eventHubDiag.id

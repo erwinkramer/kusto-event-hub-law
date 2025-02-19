@@ -1,0 +1,18 @@
+// Create a landing table for Event Hub's events from Log Analytics
+.create-merge table DIAG_RawEvents(document: dynamic)
+
+// Set the retention policy for the DIAG_RawEvents table to 0 days (no soft delete)
+// please see https://learn.microsoft.com/en-us/kusto/management/retention-policy?view=azure-data-explorer 
+// and https://learn.microsoft.com/en-us/kusto/management/alter-merge-table-retention-policy-command?view=azure-data-explorer
+//.alter-merge table DIAG_RawEvents policy retention softdelete = 0d
+
+//  Create mapping from JSON ingestion to landing table
+.create-or-alter table DIAG_RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$.records","datatype":"dynamic"}]'
+
+//  We modify the ingestion batching policy to make it easy to see records coming ingestion
+//  THIS CONFIGURATION SHOULDN'T BE USED IN PRODUCTION:  MaximumBatchingTimeSpan SHOULD BE AT LEAST 1 MINUTE
+.alter table DIAG_RawEvents policy ingestionbatching "{'MaximumBatchingTimeSpan': '0:0:10', 'MaximumNumberOfItems': 10000}"
+
+// !! Then do a lot of work parsing to a correct table, something like explained in following link!!
+// https://www.danielstechblog.io/ingesting-azure-diagnostic-logs-into-azure-data-explorer/
+// https://github.com/neumanndaniel/scripts/blob/main/Azure_Data_Explorer/Diagnostic_Logs/Activity_Logs.kql

@@ -1,6 +1,6 @@
 /*
 
-Connect-AzAccount
+Connect-AzAccount -TenantId b81eb003-1c5c-45fd-848f-90d9d3f8d016
 New-AzDeployment -Location "westeurope" -TemplateFile "./bicep/main.bicep" -TemplateParameterFile "./bicep/main.dev.bicepparam"      
 
 */
@@ -75,7 +75,8 @@ module adxDb 'modules/adx-db.bicep' = {
   scope: resourceGroup
   params: {
     adxClusterName: adx.outputs.adxClusterName
-    eventHubResourceId: adx.outputs.eventHubId
+    eventHubLawResourceId: adx.outputs.eventHubLawId
+    eventHubDiagResourceId: adx.outputs.eventHubDiagId
     eventHubConsumerGroupName: adx.outputs.eventHubConsumerGroupName
   }
 }
