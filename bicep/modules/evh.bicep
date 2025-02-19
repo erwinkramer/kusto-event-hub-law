@@ -19,7 +19,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
   tags: tags
   location: resourceGroup().location
   sku: {
-    name: 'Standard' //'Basic' doesn't private endpoints, 'Standard' does
+    name: 'Standard' // 'Basic' doesn't support private endpoints, 'Standard' does
     tier: 'Standard'
   }
   properties: {
