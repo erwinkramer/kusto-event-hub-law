@@ -1,0 +1,61 @@
+// https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/adxcommand
+// Copy the columns at once from that page and ask copilot to make the table.
+
+.create-merge table DIAG_ADXCommand (
+    ApplicationName: string,
+    Category: string,
+    CommandType: string,
+    CorrelationId: string,
+    DatabaseName: string,
+    Duration: string,
+    LastUpdatedOn: datetime,
+    OperationName: string,
+    Principal: string,
+    _ResourceId: string,
+    ResourceUtilization: dynamic,
+    RootActivityId: string,
+    StartedOn: datetime,
+    State: string,
+    TenantId: string,
+    Text: string,
+    TimeGenerated: datetime,
+    TotalCPU: string,
+    Type: string,
+    User: string,
+    WorkloadGroup: string
+    )
+
+// there seems to be no other option than to use this, because we always get the records in an array
+// also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
+//
+// copy the create-merge statement and ask copilot to correct the function
+.create-or-alter function DIAG_ADXCommandExpand()
+ {
+     DIAG_RawEvents
+    | mv-expand events = document
+    | where events.category == "Command"
+    | project
+        ApplicationName = tostring(events.properties.Application),
+        Category = tostring(events.category),
+        CommandType = tostring(events.properties.CommandType),
+        CorrelationId = tostring(events.correlationId),
+        DatabaseName = tostring(events.properties.Database),
+        Duration = tostring(events.properties.Duration),
+        LastUpdatedOn = todatetime(events.properties.LastUpdatedOn),
+        OperationName = tostring(events.operationName),
+        Principal = tostring(events.properties.Principal),
+        _ResourceId = tostring(events.resourceId),
+        ResourceUtilization = parse_json(events.properties.ResourceUtilization),
+        RootActivityId = tostring(events.properties.RootActivityId),
+        StartedOn = todatetime(events.properties.StartedOn),
+        State = tostring(events.properties.State),
+        TenantId = tostring(events.TenantId),
+        Text = tostring(events.properties.Text),
+        TimeGenerated = todatetime(events.['time']),
+        TotalCPU = tostring(events.properties.TotalCpu),
+        Type = tostring(events.Type),
+        User = tostring(events.properties.User),
+        WorkloadGroup = tostring(events.properties.WorkloadGroup)
+ }
+
+.alter table DIAG_ADXCommand policy update @'[{"Source": "DIAG_RawEvents", "Query": "DIAG_ADXCommandExpand()", "IsEnabled": "True", "IsTransactional": true}]'

@@ -4,7 +4,7 @@
 // Set the retention policy for the DIAG_RawEvents table to 0 days (no soft delete)
 // please see https://learn.microsoft.com/en-us/kusto/management/retention-policy?view=azure-data-explorer 
 // and https://learn.microsoft.com/en-us/kusto/management/alter-merge-table-retention-policy-command?view=azure-data-explorer
-//.alter-merge table DIAG_RawEvents policy retention softdelete = 0d
+.alter-merge table DIAG_RawEvents policy retention softdelete = 0d
 
 //  Create mapping from JSON ingestion to landing table
 .create-or-alter table DIAG_RawEvents ingestion json mapping 'DirectJson' '[{"column":"document","path":"$.records","datatype":"dynamic"}]'

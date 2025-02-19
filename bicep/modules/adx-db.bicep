@@ -31,6 +31,18 @@ resource adxDatabase 'Microsoft.Kusto/clusters/databases@2024-04-13' = {
     }
   }
 
+  resource dbScript_DIAG_ADXCommand 'scripts' = {
+    name: 'DIAG_ADXCommand'
+    properties: {
+      forceUpdateTag: runDatabaseScripts
+      scriptContent: loadTextContent('../../kusto/DIAG_ADXCommand.kql')
+      continueOnErrors: false
+    }
+    dependsOn: [
+      dbScript_DIAG_RawEvents
+    ]
+  }
+
   resource dbScript_LAW_RawEvents 'scripts' = {
     name: 'LAW_RawEvents'
     properties: {
