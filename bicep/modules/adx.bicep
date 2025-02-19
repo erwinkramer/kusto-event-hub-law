@@ -6,6 +6,7 @@ param logAnalyticsWorkspaceName string
 param inboundSubnetId string
 param eventHubDiagnosticsName string
 param eventHubDiagnosticsAuthorizationRuleId string
+param entraIdGroupDataViewersObjectId string
 
 var adxClusterName = 'adx-${projectName}-${environment}-${iteration}' //max length of 22 characters
 
@@ -27,6 +28,15 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   }
   properties: {
     enableDiskEncryption: true
+  }
+
+  resource dataViewers 'principalAssignments' = {
+    name: 'dataViewers'
+    properties: {
+      principalType: 'Group'
+      principalId: entraIdGroupDataViewersObjectId
+      role: 'AllDatabasesViewer'
+    }
   }
 }
 

@@ -82,6 +82,7 @@ module adx 'modules/adx.bicep' = {
     inboundSubnetId: network.outputs.inboundSubnetId
     eventHubDiagnosticsName: evh.outputs.eventHubDiagName
     eventHubDiagnosticsAuthorizationRuleId: evh.outputs.eventHubDiagAuthorizationRuleId
+    entraIdGroupDataViewersObjectId: '7bd75f2d-e855-4a3d-82bd-e6be0b71bbb9' //adx-readers
   }
 }
 
