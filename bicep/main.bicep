@@ -23,6 +23,17 @@ param iteration string
 
 param environmentTags object
 
+@minValue(2)
+@maxValue(1000)
+param adxMaxInstanceCount int
+
+@minValue(1)
+@maxValue(40)
+@description('''
+Doesn't automatically scale down, please see https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-auto-inflate?WT.mc_id=Portal-Microsoft_Azure_EventHub#how-auto-inflate-works-in-standard-tier
+''')
+param eventHubMaxThroughputUnits int
+
 var tags = union(environmentTags, {
   environment: environment
   projectName: projectName
@@ -67,6 +78,7 @@ module evh 'modules/evh.bicep' = {
     environment: environment
     projectName: projectName
     iteration: iteration
+    eventHubMaxThroughputUnits: eventHubMaxThroughputUnits
   }
 }
 
@@ -78,6 +90,7 @@ module adx 'modules/adx.bicep' = {
     environment: environment
     projectName: projectName
     iteration: iteration
+    adxMaxInstanceCount: adxMaxInstanceCount
     logAnalyticsWorkspaceName: law.outputs.logAnalyticsWorkspaceName
     inboundSubnetId: network.outputs.inboundSubnetId
     eventHubDiagnosticsName: evh.outputs.eventHubDiagName

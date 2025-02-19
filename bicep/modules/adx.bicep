@@ -2,6 +2,7 @@ param tags object
 param projectName string
 param environment string
 param iteration string
+param adxMaxInstanceCount int
 param logAnalyticsWorkspaceName string
 param inboundSubnetId string
 param eventHubDiagnosticsName string
@@ -18,6 +19,7 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   name: adxClusterName
   tags: tags
   location: resourceGroup().location
+  zones: ['1', '2', '3'] // fully zone redundant
   sku: {
     tier: 'Standard'
     name: 'Standard_E2a_v4' //cheapest tier (100$ a month approx.)
@@ -27,6 +29,12 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
     type: 'SystemAssigned'
   }
   properties: {
+    optimizedAutoscale: {
+      isEnabled: true
+      minimum: 2
+      maximum: adxMaxInstanceCount
+      version: 1
+    }
     enableDiskEncryption: true
   }
 

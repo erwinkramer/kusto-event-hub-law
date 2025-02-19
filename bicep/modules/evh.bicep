@@ -2,6 +2,7 @@ param tags object
 param projectName string
 param environment string
 param iteration string
+param eventHubMaxThroughputUnits int
 param logAnalyticsWorkspaceName string
 param inboundSubnetId string
 
@@ -20,6 +21,11 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
   sku: {
     name: 'Standard' //'Basic' doesn't private endpoints, 'Standard' does
     tier: 'Standard'
+  }
+
+  properties: {
+    isAutoInflateEnabled: true
+    maximumThroughputUnits: eventHubMaxThroughputUnits
   }
 
   resource sendRuleDiag 'authorizationRules' = {
