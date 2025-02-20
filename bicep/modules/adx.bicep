@@ -11,6 +11,7 @@ param entraIdGroupDataViewersObjectId string
 param actionGroupId string
 
 var adxClusterName = 'adx-${projectName}-${environment}-${iteration}' //max length of 22 characters
+var deployZoneGroupsViaPolicy = true
 
 resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   name: logAnalyticsWorkspaceName
@@ -71,7 +72,7 @@ resource adxClusterPe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
     ]
   }
 
-  resource privateEndpointDsnZoneGroupResource 'privateDnsZoneGroups' = {
+  resource privateEndpointDsnZoneGroupResource 'privateDnsZoneGroups' = if (deployZoneGroupsViaPolicy) {
     name: 'adx'
     properties: {
       privateDnsZoneConfigs: [
