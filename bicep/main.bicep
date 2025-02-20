@@ -35,13 +35,14 @@ Doesn't automatically scale down, please see https://learn.microsoft.com/en-us/a
 ''')
 param eventHubMaxThroughputUnits int
 
+var contactEmail = 'info@guanchen.nl'
+var entraIdGroupDataViewersObjectId = '7bd75f2d-e855-4a3d-82bd-e6be0b71bbb9' //adx-readers
+
 var tags = union(environmentTags, {
   environment: environment
   projectName: projectName
   iteration: iteration
 })
-
-var contactEmail = 'info@guanchen.nl'
 
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: 'rg-${projectName}-${environment}-${iteration}'
@@ -139,7 +140,7 @@ module adx 'modules/adx.bicep' = {
     inboundSubnetId: network.outputs.inboundSubnetId
     eventHubDiagnosticsName: evh.outputs.eventHubDiagName
     eventHubDiagnosticsAuthorizationRuleId: evh.outputs.eventHubDiagAuthorizationRuleId
-    entraIdGroupDataViewersObjectId: '7bd75f2d-e855-4a3d-82bd-e6be0b71bbb9' //adx-readers
+    entraIdGroupDataViewersObjectId: entraIdGroupDataViewersObjectId
     actionGroupId: ag.outputs.actionGroupId
   }
 }
