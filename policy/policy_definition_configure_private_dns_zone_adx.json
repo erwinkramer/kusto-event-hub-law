@@ -16,7 +16,7 @@
                 "type": "String",
                 "metadata": {
                     "displayName": "Private DNS Zone for blob endpoints",
-                    "description": "One of the five private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone to your Azure Data Explorer Cluster.",
+                    "description": "One of the four private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone to your Azure Data Explorer Cluster.",
                     "strongType": "Microsoft.Network/privateDnsZones",
                     "assignPermissions": true
                 }
@@ -25,7 +25,7 @@
                 "type": "String",
                 "metadata": {
                     "displayName": "Private DNS Zone for table endpoints",
-                    "description": "One of the five private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone to your Azure Data Explorer Cluster.",
+                    "description": "One of the four private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone to your Azure Data Explorer Cluster.",
                     "strongType": "Microsoft.Network/privateDnsZones",
                     "assignPermissions": true
                 }
@@ -34,7 +34,7 @@
                 "type": "String",
                 "metadata": {
                     "displayName": "Private DNS Zone for queue endpoints",
-                    "description": "One of the five private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone to your Azure Data Explorer Cluster.",
+                    "description": "One of the four private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone to your Azure Data Explorer Cluster.",
                     "strongType": "Microsoft.Network/privateDnsZones",
                     "assignPermissions": true
                 }
@@ -43,7 +43,7 @@
                 "type": "String",
                 "metadata": {
                     "displayName": "Private DNS Zone for kusto endpoints",
-                    "description": "One of the five private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone.",
+                    "description": "One of the four private DNS zone IDs required for Microsoft.Kusto/clusters to resolve a private DNS Zone.",
                     "strongType": "Microsoft.Network/privateDnsZones",
                     "assignPermissions": true
                 }
