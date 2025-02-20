@@ -57,6 +57,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
 
 resource eventHubNamespacePe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
   name: 'pe-${eventHubNamespaceName}'
+  tags: tags
   location: resourceGroup().location
   properties: {
     subnet: {

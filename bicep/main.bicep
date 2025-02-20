@@ -1,7 +1,7 @@
 /*
 
 Connect-AzAccount -TenantId b81eb003-1c5c-45fd-848f-90d9d3f8d016
-New-AzDeployment -Location "westeurope" -TemplateFile "./bicep/main.bicep" -TemplateParameterFile "./bicep/main.dev.bicepparam"      
+New-AzSubscriptionDeploymentStack -Name Stack-Adx -Location "westeurope" -ActionOnUnmanage DeleteAll -DenySettingsMode None -TemplateFile "./bicep/main.bicep" -TemplateParameterFile "./bicep/main.dev.bicepparam" -Force
 
 */
 
@@ -41,6 +41,8 @@ var tags = union(environmentTags, {
   iteration: iteration
 })
 
+var contactEmail = 'info@guanchen.nl'
+
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: 'rg-${projectName}-${environment}-${iteration}'
   tags: tags
@@ -63,7 +65,7 @@ resource costBudget 'Microsoft.Consumption/budgets@2024-08-01' = {
         operator: 'GreaterThan'
         threshold: 90
         contactEmails: [
-          'info@guanchen.nl'
+          contactEmail
         ]
       }
     }
@@ -76,6 +78,15 @@ resource costBudget 'Microsoft.Consumption/budgets@2024-08-01' = {
         ]
       }
     }
+  }
+}
+
+module ag 'modules/ag.bicep' = {
+  name: 'ag'
+  scope: resourceGroup
+  params: {
+    tags: tags
+    contactEmail: contactEmail
   }
 }
 
@@ -129,6 +140,7 @@ module adx 'modules/adx.bicep' = {
     eventHubDiagnosticsName: evh.outputs.eventHubDiagName
     eventHubDiagnosticsAuthorizationRuleId: evh.outputs.eventHubDiagAuthorizationRuleId
     entraIdGroupDataViewersObjectId: '7bd75f2d-e855-4a3d-82bd-e6be0b71bbb9' //adx-readers
+    actionGroupId: ag.outputs.actionGroupId
   }
 }
 
