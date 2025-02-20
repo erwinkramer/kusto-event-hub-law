@@ -21,19 +21,21 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   location: resourceGroup().location
   zones: ['1', '2', '3'] // fully zone redundant
   sku: {
-    tier: 'Standard'
+    tier: environment == 'dev' ? 'Basic' : 'Standard'
     name: adxSkuName
   }
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
-    optimizedAutoscale: {
-      isEnabled: environment != 'dev'
-      minimum: 2
-      maximum: 20
-      version: 1
-    }
+    optimizedAutoscale: environment == 'dev'
+      ? null
+      : {
+          isEnabled: true
+          minimum: 2
+          maximum: 20
+          version: 1
+        }
     enableDiskEncryption: true
   }
 
