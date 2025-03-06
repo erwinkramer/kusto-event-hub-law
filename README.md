@@ -23,23 +23,39 @@ Because Event Hubs can only connect to resources from the same region, consider 
 
 ```mermaid
 flowchart TD
-  
-subgraph Azure - West Europe
-    evhweu[Event Hub]
-    resweu[Resources]
 
-    subgraph Azure Data Explorer
-        diagtable[Diagnostics Table]
+ext[External Sources]
+ext -- plugins --> misctable
+
+subgraph Azure - West Europe
+    reslaweu[Log Analytics Resources]
+    resweu[Azure Resources]
+
+    subgraph Event Hub Namespace
+        evhlaweu[Event Hub - Log Analytics]
+        evhdiweu[Event Hub - Diagnostics]
     end
 
-    resweu-->evhweu-->diagtable
+    
+    subgraph Azure Data Explorer
+        lawtable[Log Analytics specific Tables]
+        diagtable[Diagnostics Table]
+        misctable[Miscellaneous Tables]
+    end
+
+    reslaweu--Export functionality-->evhlaweu-->lawtable
+
+    resweu--Diagnostic settings-->evhdiweu-->diagtable
 end
     
 subgraph Azure - North Europe
-    evhneu[Event Hub]
     resneu[Resources]
 
-    resneu-->evhneu-->diagtable
+    subgraph Event Hub Namespace
+        evhdineu[Event Hub - Diagnostics]
+    end
+
+    resneu--Diagnostic settings-->evhdineu-->diagtable
 end
 ```
 
