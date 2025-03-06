@@ -38,7 +38,7 @@ subgraph Azure - West Europe
 
     
     subgraph Azure Data Explorer Db
-        lawtable[Log Analytics specific Tables]
+        lawtable[Azure Monitor Table]
         diagtable[Diagnostics Table]
         misctable[Miscellaneous Tables]
     end
@@ -58,6 +58,14 @@ subgraph Azure - North Europe
     resneu--Diagnostic settings-->evhdineu-->diagtable
 end
 ```
+
+## Table design ##
+
+Generic handling of events is possible because of the standardization in logs.
+
+- The `Azure Monitor Table` follows the [Standard columns in Azure Monitor Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-standard-columns). With use of  `bag_pack_columns` (to pack all non-standard columns inside a property column) and `project-away` (to exclude standard columns in the property column) you can make a generic kusto table.
+
+- The `Diagnostics Table` follows the [Azure resource log common schema](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/resource-logs-schema#top-level-common-schema).
 
 ## Routing options ##
 
