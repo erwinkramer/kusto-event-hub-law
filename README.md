@@ -1,17 +1,23 @@
-# Streaming logs from LAW to a Kusto Cluster 🤽🏻‍♂️
+# Streaming logs from LAW to a Kusto Cluster 🤽🏻‍♂️ #
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/erwinkramer/kusto-event-hub-law)
 
-Log Analytics Workspace export to Event Hub to Kusto Cluster (Azure Data Explorer).
+Log Analytics Workspace export to Event Hub to Kusto Cluster (Azure Data Explorer Cluster).
 
 Some bits were from the [azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.kusto/kusto-event-hub/main.bicep), but i took the cheapest SKUs and the simplest testable setup, batteries included.
 
-## Kusto extension 
+## Configuration ##
+
+1. `privateDnsZoneGroups` for the Kusto private endpoint can be deployed via the [policy_definition_configure_private_dns_zone_adx](/policy/policy_definition_configure_private_dns_zone_adx.json) policy, or via Bicep by setting `deployZoneGroupsViaPolicy` to `false`.
+
+2. Create an Entra ID group for read permissions on the database, and provide the object id to the `entraIdGroupDataViewersObjectId` var in Bicep.
+
+## Kusto extension ##
 
 For [the Kusto Language Server](https://marketplace.visualstudio.com/items?itemName=rosshamish.kuskus-kusto-language-server) extension, that installs with the VS Code recommendations, please install specific version `3.4.1` and not `3.4.2`, because of issue [Language Server v3.4.2 not working #218](https://github.com/rosshamish/kuskus/issues/218).
 
-## Multi-region design
+## Multi-region design ##
 
 Because Event Hubs can only connect to resources from the same region, consider the following simplified design for connecting multiple regions:
 
@@ -38,7 +44,7 @@ end
 
 :::
 
-## Routing options
+## Routing options ##
 
 Either:
 

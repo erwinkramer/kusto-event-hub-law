@@ -8,8 +8,10 @@ param inboundSubnetId string
 param eventHubDiagnosticsName string
 param eventHubDiagnosticsAuthorizationRuleId string
 param entraIdGroupDataViewersObjectId string
+param actionGroupId string
 
 var adxClusterName = 'adx-${projectName}-${environment}-${iteration}' //max length of 22 characters
+var deployZoneGroupsViaPolicy = true
 
 resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   name: logAnalyticsWorkspaceName
@@ -21,19 +23,21 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   location: resourceGroup().location
   zones: ['1', '2', '3'] // fully zone redundant
   sku: {
-    tier: 'Standard'
+    tier: environment == 'dev' ? 'Basic' : 'Standard'
     name: adxSkuName
   }
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
-    optimizedAutoscale: {
-      isEnabled: environment != 'dev'
-      minimum: 2
-      maximum: 20
-      version: 1
-    }
+    optimizedAutoscale: environment == 'dev'
+      ? null
+      : {
+          isEnabled: true
+          minimum: 2
+          maximum: 20
+          version: 1
+        }
     enableDiskEncryption: true
   }
 
@@ -50,6 +54,7 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
 resource adxClusterPe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
   name: 'pe-${adxClusterName}'
   location: resourceGroup().location
+  tags: tags
   properties: {
     subnet: {
       id: inboundSubnetId
@@ -67,7 +72,7 @@ resource adxClusterPe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
     ]
   }
 
-  resource privateEndpointDsnZoneGroupResource 'privateDnsZoneGroups' = {
+  resource privateEndpointDsnZoneGroupResource 'privateDnsZoneGroups' = if (deployZoneGroupsViaPolicy) {
     name: 'adx'
     properties: {
       privateDnsZoneConfigs: [
@@ -135,6 +140,138 @@ resource adxRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2
       'b24988ac-6180-42a0-ab88-20f7382dd24c'
     ) // Contributor role ID
     principalId: adxCluster.identity.principalId
+  }
+}
+
+resource alertIngestionSuccess 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: 'al-${adxClusterName}-ingestion'
+  location: 'global'
+  tags: tags
+  properties: {
+    severity: 3
+    enabled: true
+    scopes: [
+      adxCluster.id
+    ]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      allOf: [
+        {
+          alertSensitivity: 'Medium'
+          failingPeriods: {
+            numberOfEvaluationPeriods: 4
+            minFailingPeriodsToAlert: 4
+          }
+          name: 'Metric1'
+          metricNamespace: 'Microsoft.Kusto/clusters'
+          metricName: 'IngestionResult'
+          dimensions: [
+            {
+              name: 'IngestionResultDetails'
+              operator: 'Exclude'
+              values: [
+                'Success'
+              ]
+            }
+          ]
+          operator: 'GreaterOrLessThan'
+          timeAggregation: 'Total'
+          skipMetricValidation: false
+          criterionType: 'DynamicThresholdCriterion'
+        }
+      ]
+      'odata.type': 'Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria'
+    }
+    targetResourceType: 'Microsoft.Kusto/clusters'
+    targetResourceRegion: resourceGroup().location
+    actions: [
+      {
+        actionGroupId: actionGroupId
+      }
+    ]
+  }
+}
+
+resource alertCpu 'microsoft.insights/metricAlerts@2018-03-01' = {
+  name: 'al-${adxClusterName}-cpu'
+  location: 'global'
+  tags: tags
+  properties: {
+    severity: 3
+    enabled: true
+    scopes: [
+      adxCluster.id
+    ]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      allOf: [
+        {
+          alertSensitivity: 'Low'
+          failingPeriods: {
+            numberOfEvaluationPeriods: 4
+            minFailingPeriodsToAlert: 4
+          }
+          name: 'Metric1'
+          metricNamespace: 'Microsoft.Kusto/clusters'
+          metricName: 'CPU'
+          operator: 'GreaterOrLessThan'
+          timeAggregation: 'Average'
+          skipMetricValidation: false
+          criterionType: 'DynamicThresholdCriterion'
+        }
+      ]
+      'odata.type': 'Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria'
+    }
+    targetResourceType: 'Microsoft.Kusto/clusters'
+    targetResourceRegion: resourceGroup().location
+    actions: [
+      {
+        actionGroupId: actionGroupId
+      }
+    ]
+  }
+}
+
+resource alertLatency 'Microsoft.Insights/metricAlerts@2018-03-01' = {
+  name: 'al-${adxClusterName}-latency'
+  location: 'global'
+  tags: tags
+  properties: {
+    severity: 3
+    enabled: true
+    scopes: [
+      adxCluster.id
+    ]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      allOf: [
+        {
+          alertSensitivity: 'Low'
+          failingPeriods: {
+            numberOfEvaluationPeriods: 4
+            minFailingPeriodsToAlert: 4
+          }
+          name: 'Metric1'
+          metricNamespace: 'Microsoft.Kusto/clusters'
+          metricName: 'IngestionLatencyInSeconds'
+          operator: 'GreaterThan'
+          timeAggregation: 'Average'
+          skipMetricValidation: false
+          criterionType: 'DynamicThresholdCriterion'
+        }
+      ]
+      'odata.type': 'Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria'
+    }
+    targetResourceType: 'Microsoft.Kusto/clusters'
+    targetResourceRegion: resourceGroup().location
+    actions: [
+      {
+        actionGroupId: actionGroupId
+      }
+    ]
   }
 }
 
