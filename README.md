@@ -63,7 +63,7 @@ end
 
 Generic handling of events is possible because of the standardization in logs.
 
-- The `Azure Monitor Table` follows the [Standard columns in Azure Monitor Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-standard-columns). With use of  `bag_pack_columns` (to pack all non-standard columns inside a property column) and `project-away` (to exclude standard columns in the property column) you can make a generic kusto table.
+- The `Azure Monitor Table` follows the [Standard columns in Azure Monitor Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-standard-columns). With use of  [bag_pack_columns](https://learn.microsoft.com/en-us/kusto/query/bag-pack-columns-function?view=azure-data-explorer) (to pack all non-standard columns inside a property column) and [project-away](https://learn.microsoft.com/en-us/kusto/query/project-away-operator?view=azure-data-explorer) (to exclude standard columns in the property column) you can make a generic kusto table.
 
 - The `Diagnostics Table` follows the [Azure resource log common schema](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/resource-logs-schema#top-level-common-schema).
 
