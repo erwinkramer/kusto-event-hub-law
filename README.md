@@ -49,7 +49,7 @@ subgraph Azure - West Europe
 end
     
 subgraph Azure - North Europe
-    resneu[Resources]
+    resneu[Azure Resources]
 
     subgraph Event Hub Namespace
         evhdineu[Event Hub - Diagnostics]
