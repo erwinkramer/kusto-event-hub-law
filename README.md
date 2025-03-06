@@ -11,6 +11,33 @@ Some bits were from the [azure-quickstart-templates](https://github.com/Azure/az
 
 For [the Kusto Language Server](https://marketplace.visualstudio.com/items?itemName=rosshamish.kuskus-kusto-language-server) extension, that installs with the VS Code recommendations, please install specific version `3.4.1` and not `3.4.2`, because of issue [Language Server v3.4.2 not working #218](https://github.com/rosshamish/kuskus/issues/218).
 
+## Multi-region design
+
+Because Event Hubs can only connect to resources from the same region, consider the following simplified design for connecting multiple regions:
+
+:::mermaid
+flowchart TD
+  
+subgraph Azure - West Europe
+    evhweu[Event Hub]
+    resweu[Resources]
+
+    subgraph Azure Data Explorer
+        diagtable[Diagnostics Table]
+    end
+
+    resweu-->evhweu-->diagtable
+end
+    
+subgraph Azure - North Europe
+    evhneu[Event Hub]
+    resneu[Resources]
+
+    resneu-->evhneu-->diagtable
+end
+
+:::
+
 ## Routing options
 
 Either:
