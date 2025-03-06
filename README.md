@@ -19,7 +19,7 @@ For [the Kusto Language Server](https://marketplace.visualstudio.com/items?itemN
 
 ## Multi-region design ##
 
-Because Event Hubs can only connect to resources from the same region, consider the following simplified design for connecting multiple regions:
+Because Event Hubs can only connect to resources from the same region, consider the following simplified design for connecting multiple regions and sources:
 
 ```mermaid
 flowchart LR
