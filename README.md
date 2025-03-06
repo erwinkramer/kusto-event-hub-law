@@ -21,7 +21,7 @@ For [the Kusto Language Server](https://marketplace.visualstudio.com/items?itemN
 
 Because Event Hubs can only connect to resources from the same region, consider the following simplified design for connecting multiple regions:
 
-:::mermaid
+```mermaid
 flowchart TD
   
 subgraph Azure - West Europe
@@ -41,8 +41,7 @@ subgraph Azure - North Europe
 
     resneu-->evhneu-->diagtable
 end
-
-:::
+```
 
 ## Routing options ##
 
