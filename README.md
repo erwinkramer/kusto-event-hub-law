@@ -37,7 +37,7 @@ subgraph Azure - West Europe
     end
 
     
-    subgraph Azure Data Explorer
+    subgraph Azure Data Explorer Db
         lawtable[Log Analytics specific Tables]
         diagtable[Diagnostics Table]
         misctable[Miscellaneous Tables]
