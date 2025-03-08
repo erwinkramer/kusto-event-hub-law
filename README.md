@@ -83,7 +83,7 @@ Make the Kusto query smarter and use the `Type` column to place the records in s
 
 Stream Analytics can be placed between Event Hub and Azure Data Explorer, with the [no-code editor](https://learn.microsoft.com/en-us/azure/stream-analytics/no-code-stream-processing) it might look like this in a Stream Analytics job:
 
-![Stream Analytics](.images\stream-analytics-nocode.png)
+![Stream Analytics](.images/stream-analytics-nocode.png)
 
 Considerations:
 
