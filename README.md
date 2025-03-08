@@ -69,10 +69,29 @@ Generic handling of events is possible because of the standardization in logs:
 
 ## Routing options ##
 
-Either:
+### Event Hub routing ###
 
-1. remove the `eventHubName` element from the `Microsoft.OperationalInsights/workspaces/dataExport` to [dynamically route to an event hub with the table name](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-data-export?tabs=portal#event-hubs), then create a `Microsoft.Kusto/clusters/databases/dataConnections` for each event hub.
-1. make the Kusto query smarter and use the `Type` column to place the records in specific tables, using something [like this](https://learn.microsoft.com/en-us/kusto/management/update-policy-tutorial?view=azure-data-explorer#1---create-tables-and-update-policies), which is currently implemented in this project. You can also use generic tables, as mentioned at [Generic table design](#generic-table-design).
+> Note: Specific for exports from Log Analytics workspace.
+
+Remove the `eventHubName` element from the `Microsoft.OperationalInsights/workspaces/dataExport` to [dynamically route to an event hub with the table name](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-data-export?tabs=portal#event-hubs), then create a `Microsoft.Kusto/clusters/databases/dataConnections` for each event hub.
+
+### ADX routing ###
+
+Make the Kusto query smarter and use the `Type` column to place the records in specific tables, using something [like this](https://learn.microsoft.com/en-us/kusto/management/update-policy-tutorial?view=azure-data-explorer#1---create-tables-and-update-policies), which is currently implemented in this project. You can also use generic tables, as mentioned at [Generic table design](#generic-table-design).
+
+### Stream Analytics routing ### 
+
+Stream Analytics can be placed between Event Hub and Azure Data Explorer, with the [no-code editor](https://learn.microsoft.com/en-us/azure/stream-analytics/no-code-stream-processing) it might look like this in a Stream Analytics job:
+
+![Stream Analytics](.images\stream-analytics-nocode.png)
+
+Considerations:
+
+- Because events get batched at Event Hub, you still have to expand to the actual events from the `records` array inside a job. 
+- Every adx table is 1 output, there's a hard limit of [60 outputs per Stream Analytics job](https://github.com/MicrosoftDocs/azure-docs/blob/main/includes/stream-analytics-limits-table.md), you could work around this by making multiple Event Hub [Consumer Groups](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features#consumer-groups) and process the same events in multiple jobs.
+- The designer is nice, but not possible to switch from no-code to code and back, you will be presented with the following message, maybe this is a preview limitation:
+  > Once confirmed to edit the query, no-code editor will no longer be available.
+- Without designer, you have to work with Stream Analytics [User Defined Functions (UDF), either in JavaScript or C#](https://learn.microsoft.com/en-us/azure/stream-analytics/functions-overview), these are also limited to 60 per job.
 
 ## License ##
 
