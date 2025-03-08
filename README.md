@@ -1,9 +1,12 @@
-# Streaming logs from LAW to a Kusto Cluster 🤽🏻‍♂️ #
+# Streaming logs to a Kusto Cluster 🤽🏻‍♂️ #
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/erwinkramer/kusto-event-hub-law)
 
-Log Analytics Workspace export to Event Hub to Kusto Cluster (Azure Data Explorer Cluster).
+Stream various logs to a Kusto Cluster (Azure Data Explorer Cluster), such as:
+- Log Analytics logs, via export functionality
+- Diagnostics logs, via Event Hub
+- External logs, via plugins
 
 Some bits were from the [azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.kusto/kusto-event-hub/main.bicep), but i took the cheapest SKUs and the simplest testable setup, batteries included.
 
