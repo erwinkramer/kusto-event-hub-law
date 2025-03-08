@@ -80,9 +80,9 @@ Remove the `eventHubName` element from the `Microsoft.OperationalInsights/worksp
 
 ### ADX routing ###
 
-Make the Kusto query smarter and use the `Type` column to place the records in specific tables, using something [like this](https://learn.microsoft.com/en-us/kusto/management/update-policy-tutorial?view=azure-data-explorer#1---create-tables-and-update-policies), which is currently implemented in this project. You can also use generic tables, as mentioned at [Generic table design](#generic-table-design).
+Make the Kusto query smarter and use the `Type` column to place the records in specific tables, using something [like this](https://learn.microsoft.com/en-us/kusto/management/update-policy-tutorial?view=azure-data-explorer#1---create-tables-and-update-policies) to directly place data in a specific table. You can also use generic tables, as mentioned at [Generic table design](#generic-table-design).
 
-To combine both, you can first put them in a generic table, and then set policies to push the records into specific tables, this scales a bit better, since you would only do `mv-expand` once for each record. See [DIAG_generic](./kusto/DIAG_Generic.kql) and [DIAG_ADXCommand](./kusto/DIAG_ADXCommand.kql) for a sample. Visually it will look like this:
+To end up in specific tables in a performant way, you can first put them in a generic table, and then set policies to push the records into specific tables, this scales a bit better, since you would only do `mv-expand` once for each record when putting the records in the generic table. See [DIAG_generic](./kusto/DIAG_Generic.kql) and [DIAG_ADXCommand](./kusto/DIAG_ADXCommand.kql) for a sample. Visually it will look like this:
 
 ```mermaid
 flowchart TD
