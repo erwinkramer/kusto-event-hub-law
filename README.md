@@ -79,6 +79,23 @@ Remove the `eventHubName` element from the `Microsoft.OperationalInsights/worksp
 
 Make the Kusto query smarter and use the `Type` column to place the records in specific tables, using something [like this](https://learn.microsoft.com/en-us/kusto/management/update-policy-tutorial?view=azure-data-explorer#1---create-tables-and-update-policies), which is currently implemented in this project. You can also use generic tables, as mentioned at [Generic table design](#generic-table-design).
 
+To combine both, you can first put them in a generic table, and then set policies to push the records into specific tables, this scales a bit better, since you would only do `mv-expand` once for each record. See [DIAG_generic](./kusto/DIAG_Generic.kql) and [DIAG_ADXCommand](./kusto/DIAG_ADXCommand.kql) for a sample. Visually it will look like this:
+
+```mermaid
+flowchart TD
+  
+rawlogs[Raw Log table, with softdelete = 0d]
+gendiag[Generic Diagnostics table, with softdelete = 0d]
+ts[Table storage logs]
+bs[Blob storage logs]
+qs[Queue storage logs]
+
+rawlogs -- policy: mv-expand--> gendiag
+gendiag -- policy: category==table --> ts
+gendiag -- policy: category==queue --> qs
+gendiag -- policy: category==blob --> bs
+```
+
 ### Stream Analytics routing ### 
 
 Stream Analytics can be placed between Event Hub and Azure Data Explorer, with the [no-code editor](https://learn.microsoft.com/en-us/azure/stream-analytics/no-code-stream-processing) it might look like this in a Stream Analytics job:

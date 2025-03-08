@@ -1,0 +1,48 @@
+// https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/resource-logs-schema#top-level-common-schema
+// Copy the columns at once from that page and ask copilot to make the table.
+
+.create-merge table DIAG_Generic (
+    ['time']: datetime,
+    resourceId: string,
+    tenantId: string,
+    operationName: string,
+    operationVersion: string,
+    category: string,
+    resultType: string,
+    resultSignature: string,
+    resultDescription: string,
+    durationMs: real,
+    callerIpAddress: string,
+    correlationId: string,
+    identity: dynamic,
+    level: string,
+    location: string,
+    properties: dynamic
+    )
+
+.alter-merge table DIAG_Generic policy retention softdelete = 0d
+
+.create-or-alter function DIAG_GenericExpand()
+ {
+    DIAG_RawEvents
+    | mv-expand events = document
+    | project
+        ['time'] = todatetime(events.['time']),
+        resourceId = tostring(events.resourceId),
+        tenantId = tostring(events.tenantId),
+        operationName = tostring(events.operationName),
+        operationVersion = tostring(events.operationVersion),
+        category = tostring(events.category),
+        resultType = tostring(events.resultType),
+        resultSignature = tostring(events.resultSignature),
+        resultDescription = tostring(events.resultDescription),
+        durationMs = todouble(events.durationMs),
+        callerIpAddress = tostring(events.callerIpAddress),
+        correlationId = tostring(events.correlationId),
+        identity = parse_json(events.identity),
+        level = tostring(events.level),
+        location = tostring(events.location),
+        properties = parse_json(events.properties)
+ }
+
+.alter table DIAG_Generic policy update @'[{"Source": "DIAG_RawEvents", "Query": "DIAG_GenericExpand()", "IsEnabled": "True", "IsTransactional": true}]'

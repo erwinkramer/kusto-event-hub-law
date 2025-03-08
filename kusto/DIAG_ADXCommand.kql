@@ -1,7 +1,7 @@
 // https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/adxcommand
 // Copy the columns at once from that page and ask copilot to make the table.
 
-.create-merge table DIAG_ADXCommand (
+.create-merge table DIAG_ADXCommand2 (
     ApplicationName: string,
     Category: string,
     CommandType: string,
@@ -25,37 +25,32 @@
     WorkloadGroup: string
     )
 
-// there seems to be no other option than to use this, because we always get the records in an array
-// also see https://learn.microsoft.com/en-us/azure/data-explorer/ingest-json-formats?tabs=kusto-query-language#ingest-json-records-containing-arrays
-//
-// copy the create-merge statement and ask copilot to correct the function
-.create-or-alter function DIAG_ADXCommandExpand()
+.create-or-alter function DIAG_ADXCommandExpand2()
  {
-     DIAG_RawEvents
-    | mv-expand events = document
-    | where events.category == "Command"
+    DIAG_Generic
+    | where category == "Command"
     | project
-        ApplicationName = tostring(events.properties.Application),
-        Category = tostring(events.category),
-        CommandType = tostring(events.properties.CommandType),
-        CorrelationId = tostring(events.correlationId),
-        DatabaseName = tostring(events.properties.Database),
-        Duration = tostring(events.properties.Duration),
-        LastUpdatedOn = todatetime(events.properties.LastUpdatedOn),
-        OperationName = tostring(events.operationName),
-        Principal = tostring(events.properties.Principal),
-        _ResourceId = tostring(events.resourceId),
-        ResourceUtilization = parse_json(events.properties.ResourceUtilization),
-        RootActivityId = tostring(events.properties.RootActivityId),
-        StartedOn = todatetime(events.properties.StartedOn),
-        State = tostring(events.properties.State),
-        TenantId = tostring(events.TenantId),
-        Text = tostring(events.properties.Text),
-        TimeGenerated = todatetime(events.['time']),
-        TotalCPU = tostring(events.properties.TotalCpu),
-        Type = tostring(events.Type),
-        User = tostring(events.properties.User),
-        WorkloadGroup = tostring(events.properties.WorkloadGroup)
+        ApplicationName = tostring(properties.Application),
+        Category = tostring(category),
+        CommandType = tostring(properties.CommandType),
+        CorrelationId = tostring(correlationId),
+        DatabaseName = tostring(properties.Database),
+        Duration = tostring(properties.Duration),
+        LastUpdatedOn = todatetime(properties.LastUpdatedOn),
+        OperationName = tostring(operationName),
+        Principal = tostring(properties.Principal),
+        _ResourceId = tostring(resourceId),
+        ResourceUtilization = parse_json(properties.ResourceUtilization),
+        RootActivityId = tostring(properties.RootActivityId),
+        StartedOn = todatetime(properties.StartedOn),
+        State = tostring(properties.State),
+        TenantId = tostring(tenantId),
+        Text = tostring(properties.Text),
+        TimeGenerated = todatetime(['time']),
+        TotalCPU = tostring(properties.TotalCpu),
+        Type = tostring(properties.Type),
+        User = tostring(properties.User),
+        WorkloadGroup = tostring(properties.WorkloadGroup)
  }
-
-.alter table DIAG_ADXCommand policy update @'[{"Source": "DIAG_RawEvents", "Query": "DIAG_ADXCommandExpand()", "IsEnabled": "True", "IsTransactional": true}]'
+ 
+.alter table DIAG_ADXCommand2 policy update @'[{"Source": "DIAG_Generic", "Query": "DIAG_ADXCommandExpand2()", "IsEnabled": "True", "IsTransactional": true}]'
