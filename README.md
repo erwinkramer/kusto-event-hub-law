@@ -4,7 +4,7 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/erwinkramer/kusto-event-hub-law)
 
 Stream various logs to a Kusto Cluster (Azure Data Explorer Cluster), such as:
-- Log Analytics logs, via export functionality
+- Log Analytics logs, via export functionality and Event Hub
 - Diagnostics logs, via Event Hub
 - External logs, via plugins
 
