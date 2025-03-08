@@ -87,11 +87,12 @@ Stream Analytics can be placed between Event Hub and Azure Data Explorer, with t
 
 Considerations:
 
-- Because events get batched at Event Hub, you still have to expand to the actual events from the `records` array inside a job. 
-- Every adx table is 1 output, there's a hard limit of [60 outputs per Stream Analytics job](https://github.com/MicrosoftDocs/azure-docs/blob/main/includes/stream-analytics-limits-table.md), you could work around this by making multiple Event Hub [Consumer Groups](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features#consumer-groups) and process the same events in multiple jobs.
-- The designer is nice, but not possible to switch from no-code to code and back, you will be presented with the following message, maybe this is a preview limitation:
-  > Once confirmed to edit the query, no-code editor will no longer be available.
-- Without designer, you have to work with Stream Analytics [User Defined Functions (UDF), either in JavaScript or C#](https://learn.microsoft.com/en-us/azure/stream-analytics/functions-overview), these are also limited to 60 per job.
+1. Because events get batched at Event Hub, you still have to expand to the actual events from the `records` array inside a job. 
+1. Every adx table is 1 output, there's a hard limit of [60 outputs per Stream Analytics job](https://github.com/MicrosoftDocs/azure-docs/blob/main/includes/stream-analytics-limits-table.md), you could work around this by making multiple Event Hub [Consumer Groups](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features#consumer-groups) and process the same events in multiple jobs.
+1. The designer is nice, but not possible to switch from no-code to code and back, you will be presented with the following message, maybe this is a preview limitation:
+   > Once confirmed to edit the query, no-code editor will no longer be available.
+2. Without designer, you have to work with the [Stream Analytics Query Language](https://learn.microsoft.com/en-us/stream-analytics-query/stream-analytics-query-language-reference?toc=https%3A%2F%2Flearn.microsoft.com%2Fen-us%2Fazure%2Fstream-analytics%2Ftoc.json&bc=https%3A%2F%2Flearn.microsoft.com%2Fen-us%2Fazure%2Fbread%2Ftoc.json), where Stream Analytics [User Defined Functions (UDF), either in JavaScript or C#](https://learn.microsoft.com/en-us/azure/stream-analytics/functions-overview) can provide reusable snippets. UDF's are limited to 60 per job.
+3. With a [Multi-region design](#multi-region-design), you end up with an event hub input for each region. In a single job, within the designer, this not practical to work with, since you cannot connect more than 1 input to an operation (such as `filter` or `expand`).
 
 ## License ##
 
