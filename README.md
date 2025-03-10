@@ -30,6 +30,9 @@ flowchart LR
 ext[External Sources]
 ext -- plugins --> misctable
 
+msdef[Microsoft Defender]
+msdef --> evhdeweu --> defetable
+
 subgraph Azure - West Europe
     reslaweu[Log Analytics Resources]
     resweu[Azure Resources]
@@ -37,12 +40,14 @@ subgraph Azure - West Europe
     subgraph Event Hub Namespace
         evhlaweu[Event Hub - Log Analytics]
         evhdiweu[Event Hub - Diagnostics]
+        evhdeweu[Event Hub - Defender]
     end
 
     
     subgraph Azure Data Explorer Db
         lawtable[Azure Monitor Table]
         diagtable[Diagnostics Table]
+        defetable[Defender Table]
         misctable[Miscellaneous Tables]
     end
 
@@ -69,6 +74,8 @@ Generic handling of events is possible because of the standardization in logs:
 - The `Azure Monitor Table` follows the [Standard columns in Azure Monitor Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-standard-columns). With use of  [bag_pack_columns](https://learn.microsoft.com/en-us/kusto/query/bag-pack-columns-function?view=azure-data-explorer) (to pack all non-standard columns inside a property column) and [project-away](https://learn.microsoft.com/en-us/kusto/query/project-away-operator?view=azure-data-explorer) (to exclude standard columns in the property column) you can make a generic kusto table.
 
 - The `Diagnostics Table` follows the [Azure resource log common schema](https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/resource-logs-schema#top-level-common-schema).
+
+- The `Defender Table` follows the [schema of the events in Azure Event Hubs](https://learn.microsoft.com/en-us/defender-endpoint/api/raw-data-export-event-hub#the-schema-of-the-events-in-azure-event-hubs)
 
 ## Routing options ##
 
