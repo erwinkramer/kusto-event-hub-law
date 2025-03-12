@@ -106,6 +106,8 @@ gendiag -- policy: category==queue --> qs
 gendiag -- policy: category==blob --> bs
 ```
 
+This model is similar to a [Medallion architecture](https://learn.microsoft.com/en-us/kusto/management/update-policy-common-scenarios?view=azure-data-explorer#medallion-architecture-data-enrichment). To monitor performance impact, please use [.show queries](https://learn.microsoft.com/en-us/kusto/management/update-policy?view=azure-data-explorer#performance-impact).
+
 ### Stream Analytics routing ### 
 
 Stream Analytics can be placed between Event Hub and Azure Data Explorer, with the [no-code editor](https://learn.microsoft.com/en-us/azure/stream-analytics/no-code-stream-processing) it might look like this in a Stream Analytics job:
