@@ -77,6 +77,8 @@ Generic handling of events is possible because of the standardization in logs:
 
 - The `Defender Table` follows the [schema of the events in Azure Event Hubs](https://learn.microsoft.com/en-us/defender-endpoint/api/raw-data-export-event-hub#the-schema-of-the-events-in-azure-event-hubs)
 
+- The `Defender for Cloud Table` follows the [Workflow automation and export data types schemas](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Powershell%20scripts/Workflow%20automation%20and%20export%20data%20types%20schemas)
+
 ## Routing options ##
 
 ### Event Hub routing ###
