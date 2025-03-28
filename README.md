@@ -12,13 +12,17 @@ Some bits were from the [azure-quickstart-templates](https://github.com/Azure/az
 
 ## Configuration ##
 
-1. `privateDnsZoneGroups` for the Kusto private endpoint can be deployed via the [policy_definition_configure_private_dns_zone_adx](/policy/policy_definition_configure_private_dns_zone_adx.json) policy, or via Bicep by setting `deployZoneGroupsViaPolicy` to `false`.
+1. `privateDnsZoneGroups` for the Kusto private endpoint can be deployed via the [Configure private DNS Zones for an Azure Data Explorer cluster groupID](https://github.com/Azure/Community-Policy/tree/main/policyDefinitions/Azure%20Data%20Explorer/configure-private-dns-zones-for-azure-data-explorer-cluster-groupid) policy, or via Bicep by setting `deployZoneGroupsViaPolicy` to `false`.
 
 2. Create an Entra ID group for read permissions on the database, and provide the object id to the `entraIdGroupDataViewersObjectId` var in Bicep.
 
 ## Kusto extension ##
 
 For [the Kusto Language Server](https://marketplace.visualstudio.com/items?itemName=rosshamish.kuskus-kusto-language-server) extension, that installs with the VS Code recommendations, please install specific version `3.4.1` and not `3.4.2`, because of issue [Language Server v3.4.2 not working #218](https://github.com/rosshamish/kuskus/issues/218).
+
+## Event Hubs deflating ##
+
+Event Hubs [auto-inflate](https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-auto-inflate) can be enabled on the standard tier, but does not facilitate deflation, this can facilitated by something like [eventHubAutoDeflate](/eventHubAutoDeflate/) in this repo.
 
 ## Multi-region design ##
 

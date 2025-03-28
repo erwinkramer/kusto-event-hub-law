@@ -2,6 +2,7 @@
     "recommendations": [
         "ms-azuretools.vscode-bicep",
         "rosshamish.kuskus-extensions-pack",
-        "github.copilot"
+        "github.copilot",
+        "ms-dotnettools.csdevkit"
     ]
 }
