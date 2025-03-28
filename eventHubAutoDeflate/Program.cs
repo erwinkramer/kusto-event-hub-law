@@ -22,7 +22,17 @@ var metricsQueryClient = new MetricsQueryClient(credential);
 var namespaceIdentifier = EventHubsNamespaceResource.CreateResourceIdentifier(subscriptionId, resourceGroupName, namespaceName);
 
 var eventHubsNamespace = armClient.GetEventHubsNamespaceResource(namespaceIdentifier);
-var namespaceData = (await eventHubsNamespace.GetAsync()).Value.Data;
+EventHubsNamespaceData namespaceData;
+
+try
+{
+    namespaceData = (await eventHubsNamespace.GetAsync()).Value.Data;
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Could not get namespace data, with message: {ex.Message}");
+    throw;
+}
 
 if (!IsAutoInflateEnabled(namespaceData))
 {
@@ -60,8 +70,7 @@ async Task<bool> IsNamespaceThrottled(MetricsQueryClient metricsQueryClient, str
 
     if (metricResult == null)
     {
-        Console.WriteLine("ThrottledRequests metric not found");
-        return true;
+        throw new InvalidOperationException("ThrottledRequests metric not found");
     }
 
     var throttledRequestTotal = metricResult.TimeSeries.FirstOrDefault()!.Values.FirstOrDefault()!.Total;
