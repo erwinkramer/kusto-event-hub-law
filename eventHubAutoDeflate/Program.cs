@@ -40,13 +40,13 @@ if (!IsAutoInflateEnabled(namespaceData))
     return;
 }
 
-if (IsNamespaceThrottled(metricsQueryClient, namespaceIdentifier!).Result)
+if (await IsNamespaceThrottled(metricsQueryClient, namespaceIdentifier!))
 {
     Console.WriteLine("Namespace is throttled, skip deflate process");
     return;
 }
 
-if (!TryDeflateNamespace(eventHubsNamespace, namespaceData, namespaceInstanceMinimumCapacity).Result)
+if (!await TryDeflateNamespace(eventHubsNamespace, namespaceData, namespaceInstanceMinimumCapacity))
 {
     Console.WriteLine($"Namespace capacity ({namespaceData.Sku.Capacity}) is already at minimum, or same as current capacity, skip deflate process");
     return;
