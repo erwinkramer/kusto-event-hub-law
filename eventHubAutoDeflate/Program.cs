@@ -16,7 +16,7 @@ var eventHubNamespaceConfigs = new List<EventHubNamespaceConfig>
     new EventHubNamespaceConfig
     {
         ResourceId = "/subscriptions/beb880cc-af9a-4e4d-8e8e-54739967674f/resourceGroups/rg-ade-sandbox/providers/Microsoft.EventHub/namespaces/asdads2d2d21d",
-        MinimumCapacity = 1 
+        MinimumCapacity = 1
     }
 };
 
