@@ -6,22 +6,20 @@ using Azure.ResourceManager.EventHubs.Models;
 
 public class EventHubNamespaceCapacityManager
 {
-    private readonly string _namespaceResourceId;
-    private readonly int _minimumCapacity;
+    private readonly EventHubNamespaceConfig _eventHubNamespaceConfig;
     private readonly ArmClient _armClient;
     private readonly MetricsQueryClient _metricsQueryClient;
 
-    public EventHubNamespaceCapacityManager(string namespaceResourceId, int minimumCapacity, TokenCredential credential)
+    public EventHubNamespaceCapacityManager(EventHubNamespaceConfig eventHubNamespaceConfig, TokenCredential credential)
     {
-        _namespaceResourceId = namespaceResourceId;
-        _minimumCapacity = minimumCapacity;
+        _eventHubNamespaceConfig = eventHubNamespaceConfig;
         _armClient = new ArmClient(credential);
         _metricsQueryClient = new MetricsQueryClient(credential);
     }
 
     public async Task DeflateNamespaceIfNeeded()
     {
-        var namespaceIdentifier = new ResourceIdentifier(_namespaceResourceId);
+        var namespaceIdentifier = new ResourceIdentifier(_eventHubNamespaceConfig.ResourceId);
         var eventHubsNamespace = _armClient.GetEventHubsNamespaceResource(namespaceIdentifier);
         EventHubsNamespaceData namespaceData;
 
@@ -86,7 +84,7 @@ public class EventHubNamespaceCapacityManager
     {
         var newCapacity = namespaceData.Sku.Capacity - 1;
 
-        if (newCapacity < _minimumCapacity || newCapacity == namespaceData.Sku.Capacity)
+        if (newCapacity < _eventHubNamespaceConfig.MinimumCapacity || newCapacity == namespaceData.Sku.Capacity)
         {
             return false;
         }

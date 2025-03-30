@@ -28,7 +28,7 @@ foreach (var eventHubNamespaceConfig in eventHubNamespaceConfigs)
 {
     try
     {
-        var eventHubNamespaceCapacityManager = new EventHubNamespaceCapacityManager(eventHubNamespaceConfig.ResourceId, eventHubNamespaceConfig.MinimumCapacity, credential);
+        var eventHubNamespaceCapacityManager = new EventHubNamespaceCapacityManager(eventHubNamespaceConfig, credential);
         await eventHubNamespaceCapacityManager.DeflateNamespaceIfNeeded();
     }
     catch (Exception ex)

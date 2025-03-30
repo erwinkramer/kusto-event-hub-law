@@ -1,4 +1,4 @@
-internal class EventHubNamespaceConfig
+public class EventHubNamespaceConfig
 {
     /// <summary>
     /// Valid resource ID of the Event Hubs namespace
