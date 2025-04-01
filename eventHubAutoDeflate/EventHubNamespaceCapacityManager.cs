@@ -45,6 +45,12 @@ public class EventHubNamespaceCapacityManager
             return;
         }
 
+        if (await IsNamespaceUnitsRealistic(namespaceIdentifier!, (int)namespaceData.Sku.Capacity!))
+        {
+             Console.WriteLine("Namespace units is realistic, skip deflate process");
+            return;
+        }
+
         if (!await TryDeflateNamespace(eventHubsNamespace, namespaceData))
         {
             Console.WriteLine($"Namespace capacity ({namespaceData.Sku.Capacity}) is already at minimum, or same as current capacity, skip deflate process");
@@ -73,6 +79,61 @@ public class EventHubNamespaceCapacityManager
         Console.WriteLine($"Namespace has {throttledRequestTotal} throttled requests in the last hour.");
 
         return throttledRequestTotal > 0;
+    }
+
+    /// <summary>
+    /// Throughput units are the measure of capacity for Event Hubs. Each unit is capable of:
+    /// Ingress (IncomingBytes metric): Up to 1 MB per second or 1,000 events per second (whichever comes first).
+    /// Egress (OutgoingBytes metric): Up to 2 MB per second or 4,096 events per second.
+    /// 
+    /// This method checks if the namespace TUs are realistic based on the IncomingBytes and OutgoingBytes metrics.
+    /// </summary>
+    private async Task<bool> IsNamespaceUnitsRealistic(string namespaceIdentifier, int currentCapacity)
+    {
+        var metricResults = (await _metricsQueryClient.QueryResourceAsync(
+            namespaceIdentifier,
+            new[] { "IncomingBytes", "OutgoingBytes" },
+            new MetricsQueryOptions
+            {
+                Granularity = TimeSpan.FromMinutes(1), //supported ones are: PT1M,PT5M,PT15M,PT30M,PT1H,PT6H,PT12H,P1D
+                TimeRange = new QueryTimeRange(DateTime.UtcNow.AddHours(-1), DateTime.UtcNow)
+            }
+        )).Value.Metrics;
+
+        if (metricResults.Count != 2)
+        {
+            Console.WriteLine($"Namespace has {metricResults.Count} metrics, expected 2 (IncomingBytes and OutgoingBytes).");
+            throw new InvalidOperationException("IncomingBytes and OutgoingBytes metric not found");
+        }
+
+        foreach (var metricResult in metricResults)
+        {
+            var metricName = metricResult.Name;
+            var currentBytesPerMinuteUpperBound = metricResult.TimeSeries
+                .SelectMany(ts => ts.Values)
+                .Max(value => value.Total ?? 0);
+
+            if (metricName == "IncomingBytes")
+            {
+                var realisticIncomingBytesPerMinute = Math.Max(currentCapacity - 1, 1) * 1_000_000 * 60; // Ensure at least 1 TU margin and convert to per minute
+                if (currentBytesPerMinuteUpperBound < realisticIncomingBytesPerMinute)
+                {
+                    Console.WriteLine($"Namespace has {currentBytesPerMinuteUpperBound} incoming bytes, which is lower than the realistic value of {realisticIncomingBytesPerMinute}.");
+                    return false;
+                }
+            }
+            else if (metricName == "OutgoingBytes")
+            {
+                var realisticOutgoingBytesPerSecond = Math.Max(currentCapacity - 1, 1) * 2_000_000 * 60; // Ensure at least 1 TU margin and convert to per minute
+                if (currentBytesPerMinuteUpperBound < realisticOutgoingBytesPerSecond)
+                {
+                    Console.WriteLine($"Namespace has {currentBytesPerMinuteUpperBound} outgoing bytes, which is lower than the realistic value of {realisticOutgoingBytesPerSecond}.");
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private bool IsAutoInflateEnabled(EventHubsNamespaceData namespaceData)
