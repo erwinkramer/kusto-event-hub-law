@@ -10,11 +10,11 @@ var eventHubNamespaceName = 'evhns-${projectName}-${environment}-${iteration}'
 var eventHubLogAnalyticsWorkspaceName = 'evh-${projectName}-law-${environment}-${iteration}'
 var eventHubDiagnosticsSettingsName = 'evh-${projectName}-diag-${environment}-${iteration}'
 
-resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+resource law 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
   name: logAnalyticsWorkspaceName
 }
 
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2025-05-01-preview' = {
   name: eventHubNamespaceName
   tags: tags
   location: resourceGroup().location
@@ -55,7 +55,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = 
   }
 }
 
-resource eventHubNamespacePe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+resource eventHubNamespacePe 'Microsoft.Network/privateEndpoints@2025-01-01' = {
   name: 'pe-${eventHubNamespaceName}'
   tags: tags
   location: resourceGroup().location
@@ -112,7 +112,7 @@ resource eventHubNamespaceDiagnosticSetting 'Microsoft.Insights/diagnosticSettin
   }
 }
 
-resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2023-09-01' = {
+resource dataExport 'Microsoft.OperationalInsights/workspaces/dataExports@2025-07-01' = {
   parent: law
   name: 'export-adx'
   properties: {

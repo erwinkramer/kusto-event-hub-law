@@ -44,7 +44,7 @@ var tags = union(environmentTags, {
   iteration: iteration
 })
 
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: 'rg-${projectName}-${environment}-${iteration}'
   tags: tags
   location: 'westeurope'

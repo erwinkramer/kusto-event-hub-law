@@ -13,7 +13,7 @@ param actionGroupId string
 var adxClusterName = 'adx-${projectName}-${environment}-${iteration}' //max length of 22 characters
 var deployZoneGroupsViaPolicy = true
 
-resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+resource law 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
   name: logAnalyticsWorkspaceName
 }
 
@@ -51,7 +51,7 @@ resource adxCluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   }
 }
 
-resource adxClusterPe 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+resource adxClusterPe 'Microsoft.Network/privateEndpoints@2025-01-01' = {
   name: 'pe-${adxClusterName}'
   location: resourceGroup().location
   tags: tags

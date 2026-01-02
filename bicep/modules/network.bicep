@@ -13,7 +13,7 @@ var privateDnsZones = [
   'privatelink.${resourceGroup().location}.kusto.windows.net'
 ]
 
-resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2025-01-01' = {
   name: vnetName
   tags: tags
   location: resourceGroup().location
